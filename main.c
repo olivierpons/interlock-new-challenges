@@ -1,27 +1,9 @@
 #include <stdio.h>
 #include <malloc.h>
+#include "include/custom_types.h"
+#include "include/cube.h"
+#include "include/block.h"
 
-typedef unsigned char ubyte;
-
-typedef struct Cube {
-    ubyte n;
-    ubyte e;
-    ubyte s;
-    ubyte w;
-    ubyte f;  /* front */
-    ubyte b;  /* behind */
-} Cube;
-
-typedef struct Piece {
-    Cube c;
-    char offset_e;
-    char offset_s;
-    char offset_w;
-    char offset_f;  /* front */
-    char offset_b;  /* behind */
-} Piece;
-
-enum { EMPTY, WALL, BUMP, HOLE, LINK};
 const ubyte X = 10;
 const ubyte Y = 10;
 const ubyte Z = 10;
@@ -29,6 +11,13 @@ const ubyte Z = 10;
 #define xyz(x, y, z) ((x) + ((y)*X) + ((z)*X*Y))
 
 Cube* spaces = NULL;
+Block *blocks = NULL;
+void blocks_free() {
+    if (blocks) {
+        printf("Freeing spaces...\n");
+        block_free(&blocks);
+    }
+}
 void cubes_free() {
     if (spaces) {
         printf("Freeing spaces...\n");
@@ -36,6 +25,7 @@ void cubes_free() {
         spaces = NULL;
     }
 }
+
 
 Cube cube1[] = {
     /*   n      e      s      w      f      b */
@@ -45,8 +35,10 @@ Cube cube1[] = {
 
 int main() {
     printf("Allocating spaces...\n");
+    blocks = block_create(2);
     spaces = malloc(sizeof(Cube) * X * Y * Z);
 
+    atexit(blocks_free);
     atexit(cubes_free);
     return 0;
 }
