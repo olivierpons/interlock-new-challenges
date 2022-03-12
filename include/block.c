@@ -2,17 +2,15 @@
 // Created by Olivier on 12/03/2022.
 //
 #include <malloc.h>
+#include <memory.h>
 #include "block.h"
 
-Block *block_create(Block *b, uint nb_pieces) {
-    Block *block = malloc(sizeof(*b) + sizeof(Piece[nb_pieces]));
-    if (block) {
-        b->total = nb_pieces;
+Block *block_create(Block *b, int total) {
+    b = malloc(sizeof(*b) + sizeof(Piece[total]));
+    if (b) {
+        b->total = (ubyte)total;
+        memset(b->tab, total, sizeof(Piece));
+        b->tab[0].is_main = true;
     }
-    return block;
-}
-
-void block_free(Block **block) {
-    free(*block);
-    *block = NULL;
+    return b;
 }

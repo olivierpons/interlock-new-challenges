@@ -2,21 +2,21 @@
 // Created by Olivier on 12/03/2022.
 //
 
-#ifndef INTERLOCK_BLOCK_H
-#define INTERLOCK_BLOCK_H
+#ifndef INTERLOCK_BLOCKS_H
+#define INTERLOCK_BLOCKS_H
 
 #include "custom_types.h"
-#include "piece.h"
+#include "block.h"
 
 /**
  * FAM: Flexible Array Members in a structure in C:
  * https://www.geeksforgeeks.org/flexible-array-members-structure-c/
  */
-typedef struct Block {
+typedef struct Blocks {
     ubyte total;
-    Piece tab[];
-} Block;
+    Block tab[];
+} Blocks;
 
-extern Block *block_create(Block *b, int total);
+extern Blocks *blocks_create(Blocks *b, int total);
 
-#endif //INTERLOCK_BLOCK_H
+#endif //INTERLOCK_BLOCKS_H
