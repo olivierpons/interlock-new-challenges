@@ -2,7 +2,7 @@
 #include <malloc.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
-#include "include/blocks.h"
+#include "include/piece.h"
 
 const ubyte X = 10;
 const ubyte Y = 10;
@@ -11,11 +11,17 @@ const ubyte Z = 10;
 #define xyz(x, y, z) ((x) + ((y)*X) + ((z)*X*Y))
 
 Cube* spaces = NULL;
-Blocks *blocks = NULL;
-void blocks_free() {
-    if (blocks) {
-        free(blocks);
-        blocks = NULL;
+const int nb_pieces = 12;
+Piece **pieces = NULL;
+
+void pieces_free() {
+    if (pieces) {
+        printf("Freeing blocks...\n");
+        for (int i = 0; i <nb_pieces; ++i) {
+            free(pieces[i]);
+        }
+        free(pieces);
+        pieces = NULL;
     }
 }
 void spaces_free() {
@@ -35,13 +41,12 @@ Cube cube1[] = {
 
 int main() {
     printf("Allocating spaces...\n");
-    blocks = blocks_create(blocks, 12);
-    for (int i=0; i<12; i++) {
-        block_create(&(blocks->tab[i]), 2);
+    pieces = calloc(nb_pieces, sizeof(Piece *));
+    for (int i=0; i<nb_pieces; i++) {
+        pieces[i] = piece_create(2);
     }
     spaces = malloc(sizeof(Cube) * X * Y * Z);
-
-    atexit(blocks_free);
+    atexit(pieces_free);
     atexit(spaces_free);
     return 0;
 }

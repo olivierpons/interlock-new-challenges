@@ -6,6 +6,5 @@
 #define INTERLOCK_CUSTOM_TYPES_H
 
 typedef unsigned char ubyte;
-typedef unsigned int uint;
 
 #endif //INTERLOCK_CUSTOM_TYPES_H

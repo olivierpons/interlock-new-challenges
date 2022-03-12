@@ -5,17 +5,18 @@
 #ifndef INTERLOCK_PIECE_H
 #define INTERLOCK_PIECE_H
 
-#include "cube.h"
-#include<stdbool.h>
+#include "custom_types.h"
+#include "part.h"
 
+/**
+ * FAM: Flexible Array Members in a structure in C:
+ * https://www.geeksforgeeks.org/flexible-array-members-structure-c/
+ */
 typedef struct Piece {
-    Cube c;
-    bool is_main;
-    char offset_e;
-    char offset_s;
-    char offset_w;
-    char offset_f;  /* front */
-    char offset_b;  /* behind */
+    ubyte total;
+    Part tab[];
 } Piece;
+
+extern Piece *piece_create(int total);
 
 #endif //INTERLOCK_PIECE_H
