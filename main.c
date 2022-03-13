@@ -32,18 +32,74 @@ void spaces_free() {
     }
 }
 
-
-Cube cube1[] = {
-    /*   n      e      s      w      f      b */
-    { WALL,  WALL,  LINK,  WALL,  BUMP,  WALL, },
-    { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, },
+Cube cubes[12][2] = {
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
+    {/* 01   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    },
 };
 
 int main() {
+    for (int i = 0; i < 12; ++i) {
+        for (int j = 0; j <2; ++j) {
+            printf("%02d %02d n: %d\n", i, j, cubes[i][j].n);
+            printf("%02d %02d e: %d\n", i, j, cubes[i][j].e);
+            printf("%02d %02d s: %d\n", i, j, cubes[i][j].s);
+            printf("%02d %02d w: %d\n", i, j, cubes[i][j].w);
+            printf("%02d %02d f: %d\n", i, j, cubes[i][j].f);
+            printf("%02d %02d b: %d\n", i, j, cubes[i][j].b);
+
+        }
+    }
     printf("Allocating spaces...\n");
     pieces = calloc(nb_pieces, sizeof(Piece *));
     for (int i=0; i<nb_pieces; i++) {
         pieces[i] = piece_create(2);
+//        pieces[i]->parts[0].c.n = ;
     }
     spaces = malloc(sizeof(Cube) * X * Y * Z);
     atexit(pieces_free);

@@ -14,7 +14,7 @@
  */
 typedef struct Piece {
     ubyte total;
-    Part tab[];
+    Part parts[];
 } Piece;
 
 extern Piece *piece_create(int total);
