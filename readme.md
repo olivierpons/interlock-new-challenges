@@ -71,11 +71,48 @@ myself!*). If you are interested, I will gladly answer (to guess my mail, it's
 simple: take [my name from here](https://github.com/olivierpons/) and add
 "at gmail.com").
 
+Entered the 12 pieces configuration in my `main.c` file.
+
+Made my code run under Linux, so I can use valgrind.
+
+Made sure there's no memory leak:
+
+```
+HEAP SUMMARY:
+    in use at exit: 0 bytes in 0 blocks
+  ...blabla...
+All heap blocks were freed -- no leaks are possible
+```
+Yay!
+
 ### Next steps
-- Make my code run under Linux, so I can use valgrind and make sure
-there's no memory leak;
-- Enter the 12 pieces configuration in my `main.c` file;
-- Make basic library to write an obj file,
+- Make basic library to write a Wavefront `obj` file,
   [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
 - Write one piece, and display it on an
   [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer).
+
+### Note for myself
+
+Simple, stupid maths:
+
+`12` cubes, total combinations possible per cube = `20` -> `12` times `20`
+= `20*20*20*20*20*20*20*20*20*20*20*20 = 4.096.000.000.000.000`
+Let's say this in english:
+```
+The result:        4 096 000 000 000 000
+A trillion is:         1 000 000 000 000
+A quadrillion is:  1 000 000 000 000 000
+```
+so **4.096 quadrillions of possibilities**
+
+`bogomips` gave me: `7200.00` =  `~7200 Mips` = `7200000000`
+
+Best (but impossible) case: `1` operation = `1` "test", this would give:
+
+```
+(20*20*20*20*20*20*20*20*20*20*20*20)/7200000000 = 568888
+568888 / 3600 = 158 hours = ~6 days
+```
+
+But 1 operation is far more than 1 "test", so this will ge me
+*far more than ~6 days*

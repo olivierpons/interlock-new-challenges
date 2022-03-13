@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <malloc.h>
+#include <stdlib.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
 #include "include/piece.h"
@@ -33,53 +34,54 @@ void spaces_free() {
 }
 
 Cube cubes[12][2] = {
+
     {/* 01   n      e      s      w      f     b */
         { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
         { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
     },
-    {/* 01   n      e      s      w      f     b */
+    {/* 02   n      e      s      w      f     b */
+        { WALL,  HOLE,  LINK,  WALL,  PLUG,  WALL},
+        { LINK,  WALL,  WALL,  WALL,  WALL,  WALL},
+    },
+    {/* 03   n      e      s      w      f     b */
         { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
         { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
     },
-    {/* 01   n      e      s      w      f     b */
+    {/* 04   n      e      s      w      f     b */
         { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
         { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
     },
-    {/* 01   n      e      s      w      f     b */
+    {/* 05   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK,  WALL,  HOLE,  WALL,  WALL,  WALL},
+    },
+    {/* 06   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  HOLE},
+        { LINK,  WALL,  WALL,  WALL,  WALL,  WALL},
+    },
+    {/* 07   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK,  WALL,  WALL,  WALL,  HOLE,  WALL},
+    },
+    {/* 08   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
+        { LINK,  WALL,  WALL,  WALL,  WALL,  HOLE},
+    },
+    {/* 09   n      e      s      w      f     b */
         { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
         { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
     },
-    {/* 01   n      e      s      w      f     b */
-        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
-        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {/* 10   n      e      s      w      f     b */
+        { WALL,  WALL,  LINK,  HOLE,  PLUG,  WALL},
+        { LINK,  WALL,  WALL,  WALL,  WALL,  WALL,},
     },
-    {/* 01   n      e      s      w      f     b */
+    {/* 11   n      e      s      w      f     b */
         { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
-        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+        { LINK,  WALL,  WALL,  HOLE,  WALL,  WALL},
     },
-    {/* 01   n      e      s      w      f     b */
+    {/* 12   n      e      s      w      f     b */
         { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
-        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    },
-    {/* 01   n      e      s      w      f     b */
-        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
-        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    },
-    {/* 01   n      e      s      w      f     b */
-        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
-        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    },
-    {/* 01   n      e      s      w      f     b */
-        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
-        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    },
-    {/* 01   n      e      s      w      f     b */
-        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
-        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    },
-    {/* 01   n      e      s      w      f     b */
-        { WALL,  WALL,  LINK,  WALL,  PLUG,  WALL},
-        { LINK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+        { LINK,  HOLE,  WALL,  WALL,  WALL,  WALL},
     },
 };
 
