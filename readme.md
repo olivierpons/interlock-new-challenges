@@ -70,3 +70,12 @@ I updated this [`readme.md`](./readme.md) to explain why I'm doing this (*and mo
 myself!*). If you are interested, I will gladly answer (to guess my mail, it's
 simple: take [my name from here](https://github.com/olivierpons/) and add
 "at gmail.com").
+
+### Next steps
+- Make my code run under Linux, so I can use valgrind and make sure
+there's no memory leak;
+- Enter the 12 pieces configuration in my `main.c` file;
+- Make basic library to write an obj file,
+  [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
+- Write one piece, and display it on an
+  [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer).
