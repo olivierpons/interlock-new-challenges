@@ -208,6 +208,9 @@ void spaces_free() {
 
 int main() {
     pieces = calloc(NB_PIECES, sizeof(Piece *));
+    spaces = malloc(sizeof(Cube) * X * Y * Z);
+    atexit(pieces_free);
+    atexit(spaces_free);
     for (int i=0; i < NB_PIECES; ++i) {
         // pieces
         //   |
@@ -230,8 +233,5 @@ int main() {
             free(desc);
         }
     }
-    spaces = malloc(sizeof(Cube) * X * Y * Z);
-    atexit(pieces_free);
-    atexit(spaces_free);
     return 0;
 }
