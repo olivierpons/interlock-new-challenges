@@ -3,4 +3,12 @@ project(interlock C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(interlock main.c include/cube.h include/custom_types.h include/part.h include/piece.h include/piece.c)
+add_executable(
+        interlock main.c
+        include/cube.h
+        include/custom_types.h
+        include/part.h
+        include/piece.h
+        include/piece.c
+        include/cube.c
+)

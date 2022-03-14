@@ -107,7 +107,9 @@ so **4.096 quadrillions of possibilities**
 
 `bogomips` gave me: `7200.00` =  `~7200 Mips` = `7200000000`
 
-Best (but impossible) case: `1` operation = `1` "test", this would give:
+Let's imagine that `1` full test = `1` operation (of course, this
+is impossible, but c'mon let's do the maths for fun).
+This would give:
 
 ```
 (20*20*20*20*20*20*20*20*20*20*20*20)/7200000000 = 568888
@@ -115,4 +117,4 @@ Best (but impossible) case: `1` operation = `1` "test", this would give:
 ```
 
 But 1 operation is far more than 1 "test", so this will ge me
-*far more than ~6 days*
+*far more than ~6 days*.

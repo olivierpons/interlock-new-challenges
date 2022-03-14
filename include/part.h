@@ -11,12 +11,9 @@
 typedef struct Part {
     Cube c;
     bool is_main;
-    char offset_n;
-    char offset_e;
-    char offset_s;
-    char offset_w;
-    char offset_f;  /* front */
-    char offset_b;  /* behind */
+    char offset_x; /* left  / right  */
+    char offset_y; /* top   / bottom */
+    char offset_z; /* front / behind */
 } Part;
 
 #endif //INTERLOCK_PART_H

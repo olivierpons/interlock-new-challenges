@@ -16,6 +16,7 @@ typedef struct Cube {
     ubyte b;  /* behind */
 } Cube;
 
-enum { EMPTY, WALL, PLUG, HOLE, LINK};
+enum { EMPTY='e', WALL='0', PLUG='+', HOLE='.', LINK='|'};
 
+extern char *cube_to_str(Cube c);
 #endif //INTERLOCK_CUBE_H
