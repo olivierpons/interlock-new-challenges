@@ -219,9 +219,13 @@ int main() {
         //   + Piece
         //       |
         //       +-- Part
-        //             +-- Cube + offset_(n e s w f b)
+        //             |
+        //             +-- Cube +
+        //             +-- offset_(n e s w f b)
         //       +-- Part
-        //             +-- Cube + offset_(n e s w f b)
+        //             |
+        //             +-- Cube +
+        //             +-- offset_(n e s w f b)
         //       +-- ...
         //       +-- Part
         int nb_pieces_to_create = ARRAY_LEN(refs[i]);
