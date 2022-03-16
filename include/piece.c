@@ -1,5 +1,5 @@
 //
-// Created by Olivier on 12/03/2022.
+// © Olivier Pons / HQF Development - 12/03/2022.
 //
 #include <malloc.h>
 #include <memory.h>

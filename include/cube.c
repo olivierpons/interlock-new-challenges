@@ -1,3 +1,7 @@
+//
+// © Olivier Pons / HQF Development - 12/03/2022.
+//
+
 #include <stdio.h>
 #include <malloc.h>
 #include "cube.h"
