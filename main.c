@@ -3,7 +3,6 @@
 #include <string.h>
 #include <linux/limits.h>
 #include <time.h>
-#include <math.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
 #include "include/piece.h"
@@ -15,7 +14,7 @@ const ubyte X = 10;
 const ubyte Y = 10;
 const ubyte Z = 10;
 
-#define xyz(x, y, z) ((x) + ((y)*X) + ((z)*X*Y))
+// #define xyz(x, y, z) ((x) + ((y)*X) + ((z)*X*Y))
 
 Cube* spaces = NULL;
 Piece **pieces = NULL;
@@ -267,15 +266,19 @@ int main() {
             "%d-%02d-%02d %02d:%02d:%02d\n",
             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
             tm.tm_hour, tm.tm_min, tm.tm_sec)
-        s_w(f_out, s, "mtllib model.mtl\n");
+        s_w(f_out, s, "mtllib model.mtl\n")
         s_w(f_out, s, "vn 0 0 1\n")
         double x = 0.0;
         double y = 0.0;
         double z = 0.0;
         ulong ref = 0;
-        ref += obj_write_face(f_out, ref, x, y, z, 0.0, 0.0, 0);
-        obj_write_face(f_out, ref, x, y, z, 0.0, 0.0, 90);
-//        obj_write_face(f_out, ref, x, y, z, 0.0, 0.0, -90);
+        ref = obj_write_face_simple(f_out, ref, x, y, z, 0.0, 0.0, 0); // front
+        ref = obj_write_face_simple(f_out, ref, x, y, z, 180, 0, 0);  // back
+        ref = obj_write_face_simple(f_out, ref, x, y, z, 0.0, 0.0, 90); // bottom
+        ref = obj_write_face_simple(f_out, ref, x, y, z, 0.0, 0.0, -90);  // top
+        ref = obj_write_face_simple(f_out, ref, x, y, z, 90, 0, 0.0);  // right
+        ref = obj_write_face_simple(f_out, ref, x, y, z, -90, 0, 0.0); // left
+        obj_write_face_radius(f_out, ref, x, y, z, 1.5, 32);
         fclose(f_out);
     } else {
         printf("? cant write to file ?\n");

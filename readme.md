@@ -65,7 +65,7 @@ piece.
 
 (Virtual) Example:
 
-### 13-03-2022
+### 2022-03-13
 I updated this [`readme.md`](./readme.md) to explain why I'm doing this (*and motivate
 myself!*). If you are interested, I will gladly answer (to guess my mail, it's
 simple: take [my name from here](https://github.com/olivierpons/) and add
@@ -85,10 +85,23 @@ All heap blocks were freed -- no leaks are possible
 ```
 Yay!
 
+### 2022-03-18
+First "good" valid 3D obj file.
+I still have problems with the color vector: I should 
+create/re-use if existing one for each piece I generate,
+but I just want to focus on generating a whole Interlock
+piece.
+
+
+Thanks to https://3dviewer.net/, I can validate my obj file:
+
+![Capture of first valid Obj file](img/2022-03-18/obj.file.snapshot.png)
+
 ### Next steps
-- Make basic library to write a Wavefront `obj` file,
+- **Done 80%**: see `2022-03-18` above:
+  Make basic library to write a Wavefront `obj` file,
   [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
-- Write one piece, and display it on an
+- **Done 0%**: Write one piece, and display it on an
   [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer).
 
 ### Note for myself

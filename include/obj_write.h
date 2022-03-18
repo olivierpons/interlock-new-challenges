@@ -9,7 +9,13 @@
 #define s_w(h, st, ...)  sprintf((st), __VA_ARGS__); fputs((st), (h));
 #define DEG2RAD (360.0/M_PI/2.0)
 
-extern ulong obj_write_face(
+extern ulong obj_write_face_radius(
+    FILE *f_out, ulong ref,
+    double center_x, double center_y, double center_z, double radius,
+    uint nb_points
+);
+
+extern ulong obj_write_face_simple(
     FILE *f_out, ulong ref,
     double x, double y, double z,
     double off_x, double off_y, double rot_z
