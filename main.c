@@ -268,10 +268,10 @@ int main() {
             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
             tm.tm_hour, tm.tm_min, tm.tm_sec)
         S_W(f_out, s, "mtllib model.mtl\n")
-        S_W(f_out, s, "vn 0 0 1\n")
-        double x = 0.0;
-        double y = 0.0;
-        double z = 0.0;
+        S_W(f_out, s, "vn 0 0 -1\n")
+        long double x = 0.0;
+        long double y = 0.0;
+        long double z = 0.0;
         ulong ref = 0;
         objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, 0); // front
         objWriteFaceSimple(f_out, &ref, x, y, z, M_PI, 0, 0);  // back
@@ -279,8 +279,8 @@ int main() {
         objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, -M_PI/2);  // top
         objWriteFaceSimple(f_out, &ref, x, y, z, M_PI/2, 0, 0.0);  // right
         objWriteFaceSimple(f_out, &ref, x, y, z, -M_PI/2, 0, 0.0); // left
-        objWriteFaceRadius(f_out, &ref, x, y, z, 1.5, 0.2, 60);
-        objWriteFaceRadius(f_out, &ref, x, y, z+0.6, 0.05, 0.01, 20);
+//        objWriteFaceRadius(f_out, &ref, x, y, z, 1.5, 0.2, 30);
+//        objWriteFaceRadius(f_out, &ref, x, y, z+1.0, 0.15, 0.01, 10);
         fclose(f_out);
     } else {
         printf("? can't write to file -> aborting.\n");
