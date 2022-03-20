@@ -1,9 +1,10 @@
-# © Olivier Pons / HQF Development - 2022-03-20 10:40:32
+# © Olivier Pons / HQF Development - 2022-03-20 12:00:52
 mtllib model.mtl
 vn 0 0 1
+# Borders:
 g Borders0
 usemtl Green
-# ref = 0
+# pRef = 0
 v -0.500000 0.500000 0.500000
 v -0.500000 0.500000 0.500000
 v 0.500000 0.500000 0.500000
@@ -15,10 +16,11 @@ v 0.450000 -0.450000 0.550000
 f 1//1 2//1 6//1 5//1
 f 2//1 3//1 7//1 6//1
 f 3//1 4//1 8//1 7//1
+# Center:
 g Center0
 usemtl Orange
 f 5//1 6//1 7//1 8//1
-# Central circle:
+# Central:
 g Circle8
 usemtl Purple
 v 1.700000 0.000000 0.000000

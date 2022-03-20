@@ -261,13 +261,13 @@ int main() {
         time_t t = time(NULL);
         struct tm tm = *localtime(&t);
         char s[255];
-        s_w(f_out, s,
+        S_W(f_out, s,
             "# © Olivier Pons / HQF Development - "
             "%d-%02d-%02d %02d:%02d:%02d\n",
             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
             tm.tm_hour, tm.tm_min, tm.tm_sec)
-        s_w(f_out, s, "mtllib model.mtl\n")
-        s_w(f_out, s, "vn 0 0 1\n")
+        S_W(f_out, s, "mtllib model.mtl\n")
+        S_W(f_out, s, "vn 0 0 1\n")
         double x = 0.0;
         double y = 0.0;
         double z = 0.0;

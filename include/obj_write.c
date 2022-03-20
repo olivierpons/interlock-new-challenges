@@ -9,26 +9,26 @@
 #include "3d.h"
 
 void rotate(double pitch, double roll, double yaw, Pos m[], uint nb) {
-    double cos_a = cos(yaw);
+    double cosA = cos(yaw);
     double sin_a = sin(yaw);
 
-    double cos_b = cos(pitch);
-    double sin_b = sin(pitch);
+    double cosB = cos(pitch);
+    double sinB = sin(pitch);
 
-    double cos_c = cos(roll);
-    double sin_c = sin(roll);
+    double cosC = cos(roll);
+    double sinC = sin(roll);
 
-    double Axx = cos_a*cos_b;
-    double Axy = cos_a*sin_b*sin_c - sin_a*cos_c;
-    double Axz = cos_a*sin_b*cos_c + sin_a*sin_c;
+    double Axx = cosA * cosB;
+    double Axy = cosA * sinB * sinC - sin_a * cosC;
+    double Axz = cosA * sinB * cosC + sin_a * sinC;
 
-    double Ayx = sin_a*cos_b;
-    double Ayy = sin_a*sin_b*sin_c + cos_a*cos_c;
-    double Ayz = sin_a*sin_b*cos_c - cos_a*sin_c;
+    double Ayx = sin_a * cosB;
+    double Ayy = sin_a * sinB * sinC + cosA * cosC;
+    double Ayz = sin_a * sinB * cosC - cosA * sinC;
 
-    double Azx = -sin_b;
-    double Azy = cos_b*sin_c;
-    double Azz = cos_b*cos_c;
+    double Azx = -sinB;
+    double Azy = cosB * sinC;
+    double Azz = cosB * cosC;
 
     for (uint i = 0; i <nb; i++) {
         double px = m[i].x;
@@ -41,16 +41,16 @@ void rotate(double pitch, double roll, double yaw, Pos m[], uint nb) {
 }
 
 ulong objWriteCirclePoints(
-    FILE *f_out, ulong ref,
-    double center_x, double center_y, double center_z, double radius,
-    uint nb_points)
+    FILE *fOut, ulong ref,
+    double centerX, double centerY, double centerZ, double radius,
+    uint totalPoints)
 {
     char s[255];
-    double x, y, step = 360.0/nb_points, angle = 0.0;
+    double x, y, step = 360.0 / totalPoints, angle = 0.0;
     while (angle < 360.0) {
-        x = center_x + radius * cos(angle / DEG2RAD);
-        y = center_y + radius * sin(angle / DEG2RAD);
-        s_w(f_out, s, "v %lf %lf %lf\n", x, y, center_z)
+        x = centerX + radius * cos(angle / DEG2RAD);
+        y = centerY + radius * sin(angle / DEG2RAD);
+        W_P(fOut, s, x, y, centerZ)
         angle += step;
         ref++;
     }
@@ -58,7 +58,7 @@ ulong objWriteCirclePoints(
 }
 
 ulong objWriteFaceRadius(
-    FILE *f_out, ulong ref,
+    FILE *fOut, ulong ref,
     double centerX, double centerY, double centerZ, double radius,
     uint totalPoints)
 {
@@ -95,29 +95,24 @@ ulong objWriteFaceRadius(
         }
 //        for (ulong i = 0; i < nbPoints; ++i) {
 //            printf("v %lf %lf %lf\n", m[i].x,m[i].y, m[i].z);
-//            s_w(f_out, s, "v %lf %lf %lf\n", m[i].x,m[i].y, m[i].z)
+//            S_W(fOut, s, "v %lf %lf %lf\n", m[i].x,m[i].y, m[i].z)
 //        }
         free(m);
     }
 
     printf("------------------------------------------------------\n");
-    s_w(f_out, s, "# Central circle:\n")
-    s_w(f_out, s, "g Circle%ld\n", ref)
-    s_w(f_out, s, "usemtl Purple\n")
+
+    W_O(fOut, s, "Central", "Circle%ld", ref, "Purple")
     done = objWriteCirclePoints(
-        f_out, done, centerX, centerY, centerZ, radius, totalPoints
+        fOut, done, centerX, centerY, centerZ, radius, totalPoints
     );
 
-    s_w(f_out, s, "# Round circle:\n")
-    s_w(f_out, s, "g CircleRound%ld\n", ref)
-    s_w(f_out, s, "usemtl Orange\n")
+    W_O(fOut, s, "Round circle", "CircleRound%ld", ref, "Orange")
     done = objWriteCirclePoints(
-        f_out, done, centerX, centerY, centerZ, radius + 0.2, totalPoints
+        fOut, done, centerX, centerY, centerZ, radius + 0.2, totalPoints
     );
     /* - linking points - */
-    s_w(f_out, s, "# Central circle:\n")
-    s_w(f_out, s, "g Circle%ld\n", ref)
-    s_w(f_out, s, "usemtl Purple\n")
+    W_O(fOut, s, "Central circle", "Circle%ld", ref, "Purple")
     ulong half = done / 2;
     for (ulong i = 0; i < half; ++i) {
         ulong p1 = ref + 1 + i;
@@ -128,17 +123,17 @@ ulong objWriteFaceRadius(
             // should be changed to:       f 1//1 16//1 32//1 17//1
             p2 = p2 - half;
         }
-        s_w(f_out, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n",
+        S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n",
             p2, p1, p1 + half, p2 + half)
     }
-    s_w(f_out, s, "\n")
+    S_W(fOut, s, "\n")
     return ref + done;
 }
 
 ulong objWriteFaceSimple(
-    FILE *f_out, ulong *ref,
+    FILE *fOut, ulong *pRef,
     double x, double y, double z,
-    double off_x, double off_y, double rot_z)
+    double offX, double offY, double rotZ)
 {
     char s[255];
     Pos m[] = {
@@ -151,31 +146,29 @@ ulong objWriteFaceSimple(
         {+0.45, +0.45, 0.55},
         {+0.45, -0.45, 0.55},
     };
-    rotate(off_x / DEG2RAD, rot_z / DEG2RAD, off_y / DEG2RAD, m, 8);
+    rotate(offX / DEG2RAD, rotZ / DEG2RAD, offY / DEG2RAD, m, 8);
 
-    ulong i = *ref;
-    s_w(f_out, s, "g Borders%ld\n", i)
-    s_w(f_out, s, "usemtl Green\n")
+    ulong r = *pRef;
+    W_O(fOut, s, "Borders", "Borders%ld", r, "Green")
+    S_W(fOut, s, "# pRef = %ld\n", r)
 
-    s_w(f_out, s, "# ref = %ld\n", i)
-    s_w(f_out, s, "v %lf %lf %lf\n", x + m[0].x, y  + m[0].z, z + m[0].z)
-    s_w(f_out, s, "v %lf %lf %lf\n", x + m[1].x, y  + m[1].z, z + m[1].z)
-    s_w(f_out, s, "v %lf %lf %lf\n", x + m[2].x, y  + m[2].z, z + m[2].z)
-    s_w(f_out, s, "v %lf %lf %lf\n", x + m[3].x, y  + m[3].z, z + m[3].z)
+    W_P(fOut, s, x + m[0].x, y + m[0].z, z + m[0].z)
+    W_P(fOut, s, x + m[1].x, y + m[1].z, z + m[1].z)
+    W_P(fOut, s, x + m[2].x, y + m[2].z, z + m[2].z)
+    W_P(fOut, s, x + m[3].x, y + m[3].z, z + m[3].z)
 
-    s_w(f_out, s, "v %lf %lf %lf\n", x + m[4].x, y  + m[4].y, z + m[4].z)
-    s_w(f_out, s, "v %lf %lf %lf\n", x + m[5].x, y  + m[5].y, z + m[5].z)
-    s_w(f_out, s, "v %lf %lf %lf\n", x + m[6].x, y  + m[6].y, z + m[6].z)
-    s_w(f_out, s, "v %lf %lf %lf\n", x + m[7].x, y  + m[7].y, z + m[7].z)
+    W_P(fOut, s, x + m[4].x, y + m[4].y, z + m[4].z)
+    W_P(fOut, s, x + m[5].x, y + m[5].y, z + m[5].z)
+    W_P(fOut, s, x + m[6].x, y + m[6].y, z + m[6].z)
+    W_P(fOut, s, x + m[7].x, y + m[7].y, z + m[7].z)
 
-    s_w(f_out, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", i+1, i+2, i+6, i+5)
-    s_w(f_out, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", i+2, i+3, i+7, i+6)
-    s_w(f_out, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", i+3, i+4, i+8, i+7)
-//    s_w(f_out, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", i+1, i+5, i+8, i+4)
+    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 1, r + 2, r + 6, r + 5)
+    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 2, r + 3, r + 7, r + 6)
+    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 3, r + 4, r + 8, r + 7)
+//    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 1, r + 5, r + 8, r + 4)
 
-    s_w(f_out, s, "g Center%ld\n", i)
-    s_w(f_out, s, "usemtl Orange\n")
-    s_w(f_out, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", i+5, i+6, i+7, i+8)
+    W_O(fOut, s, "Center", "Center%ld", r, "Orange")
+    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 5, r + 6, r + 7, r + 8)
 
-    return *ref += 8;
+    return *pRef += 8;
 }
