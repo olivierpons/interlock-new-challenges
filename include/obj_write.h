@@ -27,12 +27,6 @@
     (ptr)[(i)].y = (vy); \
     (ptr)[(i)].z = (vz);
 
-extern void objWriteFaceRadius(
-    FILE *fOut, ulong *ref,
-    long double x, long double y, long double z,
-    long double radius, long double thick, uint totalPoints
-);
-
 extern void objWriteFaceSimple(
     FILE *fOut, ulong *pRef,
     long double x, long double y, long double z,

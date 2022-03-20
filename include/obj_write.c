@@ -56,45 +56,6 @@ void calcRadiusPoints(
     }
 }
 
-void objWriteFaceRadius(
-    FILE *fOut, ulong *ref,
-    long double x, long double y, long double z,
-    long double radius, long double thick, uint totalPoints)
-{
-    Pos *m;
-    char s[255];
-    ulong r = *ref;
-
-    m = malloc(totalPoints * sizeof(Pos) * 2);
-
-    // Points of the inner circle:
-    calcRadiusPoints(m, x, y, z, radius, totalPoints);
-    // Points of the outer circle:
-    calcRadiusPoints(&(m[totalPoints]), x, y, z, radius + thick, totalPoints);
-
-    for (ulong i = 0; i < totalPoints*2; ++i) {
-        S_W(fOut, s, "v %Lf %Lf %Lf\n", m[i].x,m[i].y, m[i].z)
-    }
-
-    /* - linking points: from inner to outer - */
-    W_O(fOut, s, "Linking inner to outer", "Circle%ld", r, "Purple")
-    for (ulong i = 0; i < totalPoints; ++i) {
-        ulong p1 = r + 1 + i;
-        ulong p2 = r + 2 + i;
-        if ((1 + i) >= totalPoints) {
-            // last point = special case:
-            // old case for 16 points: f 17//1 16//1 32//1 33//1
-            // has to be changed to:   f  1//1 16//1 32//1 17//1
-            p2 = p2 - totalPoints;
-        }
-        S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n",
-            p2, p1, p1 + totalPoints, p2 + totalPoints)
-    }
-
-    free(m);
-    *ref = r + totalPoints*2;
-}
-
 void objWritePoints(FILE *fOut, Pos *m, ulong start, ulong end)
 {
     char s[255];
@@ -108,7 +69,7 @@ void objWriteFaceSimple(
     long double offX, long double offY, long double rotZ)
 {
     char s[255];
-    ulong circlePoints = 100;
+    ulong circlePoints = 128;
     long double radius = 0.20;
 
     Pos *m;
@@ -144,7 +105,7 @@ void objWriteFaceSimple(
     objWritePoints(fOut, m, 0, 8 + (circlePoints*3));
 
     // make the links = quads here:
-//    W_O(fOut, s, "Inner square", "InnerSquare%ld", r, "Orange")
+    W_O(fOut, s, "Inner square", "InnerSquare%ld", r, "Orange")
 //    W_LINK(fOut, s, r + 1, r + 2, r + 3, r + 4)
     W_O(fOut, s, "Outer square", "OuterSquare%ld", r, "Green")
     W_LINK(fOut, s, r + 1, r + 2, r + 6, r + 5)

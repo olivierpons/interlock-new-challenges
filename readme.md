@@ -7,14 +7,16 @@ C program to generate new challenges for:
 [Smartgames](https://www.smartgames.eu/) do the best brain-teaser games around. 
 I have almost all (if not all!) their games.
 They are all great (if not excellent), but Interlock, which
-is *not* from Smartgames, and it's IMHOn the best brain-teaser ever. 
+is *not* from Smartgames, is, IMHO, one of the best brain-teaser ever.
+Would it be better designed, with more challenges, it would be the best.
+But as it is now, it's already one of the best!
 
-Buy it, it's worth very penny!
+My advice: if you're into brain-teasers, buy it, it's worth very penny!
 
 ![Interlock, the hide the plug and socket puzzle!](img/interlock-game.png)
 
 
-## Why do this?
+## Why do a program to generate all challenges for this brain-teaser?
 There are 50 possible combinations / challenges.
 The two hardest ones are these, which use 11 pieces:
 ![Interlock, the hide the plug and socket puzzle!](img/manual-solution-49-and-50.png)
@@ -25,30 +27,33 @@ So, the two hardest ones use 11 pieces... and we have 12 pieces!
 
 I find this very frustrating.
 
-How about programming a solver, and after I've done this, create new challenges, and
-maybe if it's possible, create new pieces?
+How about programming a solver, and after I've done this, create new challenges,
+and maybe if it's possible, create new pieces to see if we can have different
+pieces and brand-new challenges?
 
 ## How to do it? Which language, and why?
 
-Today, almost all languages rely on tons of libraries written by someone else.
-This implies that you rely on other's code, and you write very few lines of code.
+- I wanted a **very fast** language,
+- I wanted **not** to rely on a library that makes bad hidden things
+- I wanted to be able to say: "if it doesn't work properly, it's 100% my fault,
+  and I can optimize my code: it's not an obscure strange library made by 
+  someone else that I'm using".
+
+I don't know if I will ever succeed, that's the whole point of all of this, 
+actually!
+
+Here are my thoughts: today, almost all languages rely on tons of libraries
+written by someone else.
+This implies that you rely on other's code, and you write very few lines of 
+code.
 I'm a Php *and* Python senior developer, I do this every day... 
 It's *always* working, but like "magically" working: it's not you who actually
 did the work, it's someone else who did 99% of the work... and when it's not
 working you're in deep trouble: you need to understand where is the problem,
-who did it and how to correct the library's code... and it takes ages to solve it -
-when you can solve it, because sometimes you can't, you have to find a workaround...
-erg...erg...erg...
+who did it and how to correct the library's code... and it takes ages to solve
+it - when you can solve it... because most of the time you can't,
+you have to find a workaround...
 
-So: 
-
-- I wanted a **very fast** language,
-- I wanted **not** to rely on a library that makes bad hidden things
-- I wanted to be able to say: "if it doesn't work properly, it's 100% my fault, 
-and I can optimize my code: it's not an obscure strange library made by someone else 
-that I'm using". 
-
-I don't know if I will ever succeed, that's the whole point of all of this, actually!
 
 ## Diary
 
@@ -112,24 +117,24 @@ So I've done 50% of the way of the point `2` (see below).
 1. **`✓ 100%`**: see `2022-03-18` above:
    Make basic library to write a Wavefront `obj` file,
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
-2. **`0%`**: Write one piece, and display it on an
+2. **`✗ .50%`**: Write one piece, and display it on an
    [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
-3. **`0%`**: Convert a world (which will be full of pieces) to a 3D obj file;
-4. **`0%`**: Put a piece in the world, and generate the 3D obj file;
-5. **`0%`**: Put a piece in the world, and try to put another piece next to it
+3. **`✗ ..0%`**: Convert a world (which will be full of pieces) to a 3D obj file;
+4. **`✗ ..0%`**: Put a piece in the world, and generate the 3D obj file;
+5. **`✗ ..0%`**: Put a piece in the world, and try to put another piece next to it
    (only *valid* positions);
-6. **`0%`**: Algorithm that checks in the world if there are only "flat" 
+6. **`✗ ..0%`**: Algorithm that checks in the world if there are only "flat" 
    visible faces (= no sockets / holes visible);
-7. **`0%`**: Pre-compute all rotations of a piece;
-8. **`0%`**: For all possible rotations, of **2** pieces, 
+7. **`✗ ..0%`**: Pre-compute all rotations of a piece;
+8. **`✗ ..0%`**: For all possible rotations, of **2** pieces, 
    try to put them next to each other, and check if there are only "flat" 
    visible faces. If so, generate the corresponding 3D obj file.
-9. **`0%`**: With *all combinations* of 2 pieces taken from the 12
+9. **`✗ ..0%`**: With *all combinations* of 2 pieces taken from the 12
    possible pieces, try to make *all combinations* of *all rotations*
    and generate + write 3D files of valid positions (= only flat faces
    visible).
-10. **`0%`**: Use godotengine and read all the 3D files and show
-    them: see #1 results for this:
+10. **`✗ 0%`**: Not sure if I'll eveer do this. Use godotengine and read all
+    the 3D files and show them: see #1 results for this:
     [Importing 3D scenes - Godot Docs](https://www.google.com/search?q=site%3Adocs.godotengine.org+%22importing+3d+scenes%22)
 
 ### Note for myself

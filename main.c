@@ -195,19 +195,21 @@ const int NB_PIECES = 12;
 
 void piecesFree() {
     if (pieces) {
-        printf("Freeing blocks...\n");
         for (int i = 0; i < NB_PIECES; ++i) {
             free(pieces[i]);
         }
         free(pieces);
         pieces = NULL;
+    } else {
+        printf("? No blocks to free ?\n");
     }
 }
 void spacesFree() {
     if (spaces) {
-        printf("Freeing spaces...\n");
         free(spaces);
         spaces = NULL;
+    } else {
+        printf("? No spaces to free ?\n");
     }
 }
 
@@ -279,8 +281,6 @@ int main() {
         objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, -M_PI/2);  // top
         objWriteFaceSimple(f_out, &ref, x, y, z, M_PI/2, 0, 0.0);  // right
         objWriteFaceSimple(f_out, &ref, x, y, z, -M_PI/2, 0, 0.0); // left
-//        objWriteFaceRadius(f_out, &ref, x, y, z, 1.5, 0.2, 30);
-//        objWriteFaceRadius(f_out, &ref, x, y, z+1.0, 0.15, 0.01, 10);
         fclose(f_out);
     } else {
         printf("? can't write to file -> aborting.\n");
