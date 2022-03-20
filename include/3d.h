@@ -5,8 +5,8 @@
 #ifndef INTERLOCK_3D_H
 #define INTERLOCK_3D_H
 typedef struct Pos {
-    double x;
-    double y;
-    double z;
+    long double x;
+    long double y;
+    long double z;
 } Pos;
 #endif //INTERLOCK_3D_H

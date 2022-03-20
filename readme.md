@@ -96,7 +96,7 @@ Thanks to https://3dviewer.net/, I can validate my obj file:
 ![Capture of first valid Obj file](img/2022-03-18/obj.file.snapshot.png)
 
 ### Next steps
-1. **`80%`**: see `2022-03-18` above:
+1. **`90%`**: see `2022-03-18` above:
    Make basic library to write a Wavefront `obj` file,
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
 2. **`0%`**: Write one piece, and display it on an
