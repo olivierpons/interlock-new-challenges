@@ -40,7 +40,7 @@ void rotate(double pitch, double roll, double yaw, Pos m[], uint nb) {
     }
 }
 
-ulong obj_write_circle_points(
+ulong objWriteCirclePoints(
     FILE *f_out, ulong ref,
     double center_x, double center_y, double center_z, double radius,
     uint nb_points)
@@ -57,43 +57,43 @@ ulong obj_write_circle_points(
     return ref;
 }
 
-ulong obj_write_face_radius(
+ulong objWriteFaceRadius(
     FILE *f_out, ulong ref,
-    double center_x, double center_y, double center_z, double radius,
-    uint circle_total_points)
+    double centerX, double centerY, double centerZ, double radius,
+    uint totalPoints)
 {
     Pos *m;
     char s[255];
-    double x, y, step = 360.0 / circle_total_points, angle;
+    double x, y, step = 360.0 / totalPoints, angle;
     ulong done = 0;
     {
-        uint nb_points = 0;
+        uint nbPoints = 0;
 
-        m = malloc(circle_total_points * sizeof(Pos) * 2);
+        m = malloc(totalPoints * sizeof(Pos) * 2);
         // First points = points of the inner circle:
         angle = 0.0;
         while (angle < 360.0) {
-            x = center_x + radius * cos(angle / DEG2RAD);
-            y = center_y + radius * sin(angle / DEG2RAD);
-            m[nb_points].x = x;
-            m[nb_points].y = y;
-            m[nb_points].z = center_z;
+            x = centerX + radius * cos(angle / DEG2RAD);
+            y = centerY + radius * sin(angle / DEG2RAD);
+            m[nbPoints].x = x;
+            m[nbPoints].y = y;
+            m[nbPoints].z = centerZ;
             angle += step;
-            nb_points++;
+            nbPoints++;
         }
         // First points = points of the outer circle:
         radius += 0.2;
         angle = 0.0;
         while (angle < 360.0) {
-            x = center_x + radius * cos(angle / DEG2RAD);
-            y = center_y + radius * sin(angle / DEG2RAD);
-            m[nb_points].x = x;
-            m[nb_points].y = y;
-            m[nb_points].z = center_z;
+            x = centerX + radius * cos(angle / DEG2RAD);
+            y = centerY + radius * sin(angle / DEG2RAD);
+            m[nbPoints].x = x;
+            m[nbPoints].y = y;
+            m[nbPoints].z = centerZ;
             angle += step;
-            nb_points++;
+            nbPoints++;
         }
-//        for (ulong i = 0; i < nb_points; ++i) {
+//        for (ulong i = 0; i < nbPoints; ++i) {
 //            printf("v %lf %lf %lf\n", m[i].x,m[i].y, m[i].z);
 //            s_w(f_out, s, "v %lf %lf %lf\n", m[i].x,m[i].y, m[i].z)
 //        }
@@ -104,15 +104,15 @@ ulong obj_write_face_radius(
     s_w(f_out, s, "# Central circle:\n")
     s_w(f_out, s, "g Circle%ld\n", ref)
     s_w(f_out, s, "usemtl Purple\n")
-    done = obj_write_circle_points(
-        f_out, done, center_x, center_y, center_z, radius, circle_total_points
+    done = objWriteCirclePoints(
+        f_out, done, centerX, centerY, centerZ, radius, totalPoints
     );
 
     s_w(f_out, s, "# Round circle:\n")
     s_w(f_out, s, "g CircleRound%ld\n", ref)
     s_w(f_out, s, "usemtl Orange\n")
-    done = obj_write_circle_points(
-        f_out, done, center_x, center_y, center_z, radius + 0.2, circle_total_points
+    done = objWriteCirclePoints(
+        f_out, done, centerX, centerY, centerZ, radius + 0.2, totalPoints
     );
     /* - linking points - */
     s_w(f_out, s, "# Central circle:\n")
@@ -135,7 +135,7 @@ ulong obj_write_face_radius(
     return ref + done;
 }
 
-ulong obj_write_face_simple(
+ulong objWriteFaceSimple(
     FILE *f_out, ulong *ref,
     double x, double y, double z,
     double off_x, double off_y, double rot_z)

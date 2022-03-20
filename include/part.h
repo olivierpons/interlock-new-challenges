@@ -10,10 +10,10 @@
 
 typedef struct Part {
     Cube c;
-    bool is_main;
-    char offset_x; /* left  / right  */
-    char offset_y; /* top   / bottom */
-    char offset_z; /* front / behind */
+    bool isMain;
+    char offsetX; /* left  / right  */
+    char offsetY; /* top   / bottom */
+    char offsetZ; /* front / behind */
 } Part;
 
 #endif //INTERLOCK_PART_H

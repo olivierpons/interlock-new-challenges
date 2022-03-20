@@ -17,6 +17,6 @@ typedef struct Piece {
     Part parts[];
 } Piece;
 
-extern Piece *piece_create(int total);
+extern Piece *pieceCreate(int total);
 
 #endif //INTERLOCK_PIECE_H

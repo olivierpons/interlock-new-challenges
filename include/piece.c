@@ -5,12 +5,12 @@
 #include <memory.h>
 #include "piece.h"
 
-Piece *piece_create(int total) {
+Piece *pieceCreate(int total) {
     Piece *b = malloc(sizeof(*b) + sizeof(Part[total]));
     if (b) {
         b->total = (ubyte)total;
         memset(b->parts, 0, total * sizeof(Part));
-        b->parts[0].is_main = true;
+        b->parts[0].isMain = true;
     }
     return b;
 }

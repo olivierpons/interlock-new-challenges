@@ -18,5 +18,5 @@ typedef struct Cube {
 
 enum { EMPTY='e', WALL='0', PLUG='+', HOLE='.', LINK='|'};
 
-extern char *cube_to_str(Cube c);
+extern char *cubeToStr(Cube c);
 #endif //INTERLOCK_CUBE_H
