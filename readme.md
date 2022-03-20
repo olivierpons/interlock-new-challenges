@@ -93,10 +93,23 @@ piece.
 
 Thanks to https://3dviewer.net/, I can validate my obj file:
 
-![Capture of first valid Obj file](img/2022-03-18/obj.file.snapshot.png)
+![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-18-18h25.png)
+
+### 2022-03-20
+Worked a *lot* on 3D generation. To make a long story short: now I
+generate dynamically a face of an object with a plug, and I rotate it
+if I need it for another face.
+Here's what I can generate: 4 faces, each one with a specific rotation:
+
+![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-20.18h30.png)
+
+So I can consider the first point done.
+Now I have to join the points of a circle with the points of a square
+(to be able to have a "hole" = a "socket" in the face).
+So I've done 50% of the way of the point `2` (see below).
 
 ### Next steps
-1. **`90%`**: see `2022-03-18` above:
+1. **`✓ 100%`**: see `2022-03-18` above:
    Make basic library to write a Wavefront `obj` file,
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
 2. **`0%`**: Write one piece, and display it on an

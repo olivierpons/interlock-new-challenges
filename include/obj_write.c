@@ -108,14 +108,15 @@ void objWriteFaceSimple(
     long double offX, long double offY, long double rotZ)
 {
     char s[255];
-    ulong circlePoints = 10;
+    ulong circlePoints = 100;
+    long double radius = 0.20;
 
     Pos *m;
     m = malloc((
         8 // inner + outer square
         + circlePoints // circle "on" the square
         + circlePoints // circle "off" the square
-        + 0 // smaller circle "off" the square
+        + circlePoints // smaller circle "off" the square
         ) * sizeof(Pos));
 
     /* hard-code points of the 2 squares, relative to x/y/z: */
@@ -130,16 +131,21 @@ void objWriteFaceSimple(
 
     ulong r = *pRef;
     // Points of the inner circle:
-    calcRadiusPoints(m+8, x, y, z+1.0, 0.05 /*radius*/, circlePoints);
+    calcRadiusPoints(m+8, x, y, z+1.0, radius, circlePoints);
     // Points of the outer circle:
-    calcRadiusPoints(m+8+circlePoints, x, y, z+1.0, 0.09, circlePoints);
+    calcRadiusPoints(m+8+circlePoints, x, y, z+0.9, radius + 0.1, circlePoints);
+    // Points of the circle "on" the square:
+    calcRadiusPoints(m+8+(circlePoints*2), x, y, z+0.56, radius + 0.1, circlePoints);
 
-    rotate(offX, rotZ, offY, m, 8 + (circlePoints*2));
+    // All points are calculated -> rotate them:
+    rotate(offX, rotZ, offY, m, 8 + (circlePoints*3));
+
     // first, write *all* points
-    objWritePoints(fOut, m, 0, 8 + (circlePoints*2));  // from 0->7
+    objWritePoints(fOut, m, 0, 8 + (circlePoints*3));
+
     // make the links = quads here:
-    W_O(fOut, s, "Inner square", "InnerSquare%ld", r, "Orange")
-    W_LINK(fOut, s, r + 1, r + 2, r + 3, r + 4)
+//    W_O(fOut, s, "Inner square", "InnerSquare%ld", r, "Orange")
+//    W_LINK(fOut, s, r + 1, r + 2, r + 3, r + 4)
     W_O(fOut, s, "Outer square", "OuterSquare%ld", r, "Green")
     W_LINK(fOut, s, r + 1, r + 2, r + 6, r + 5)
     W_LINK(fOut, s, r + 2, r + 3, r + 7, r + 6)
@@ -152,7 +158,6 @@ void objWriteFaceSimple(
         S_W(fOut, s, " %lu//1", r + 9 + i)
     }
     S_W(fOut, s, "\n")
-
 
     /* - linking points: from inner to outer - */
     W_O(fOut, s, "Linking inner to outer", "Circle%ld", r, "Purple")
@@ -169,13 +174,25 @@ void objWriteFaceSimple(
             p2, p1, p1 + circlePoints, p2 + circlePoints)
     }
 
+    /* - linking points: from inner to outer - */
+    W_O(fOut, s, "Linking inner to outer", "Circle%ld", r, "Red")
+    for (ulong i = 0; i < circlePoints; ++i) {
+        ulong p1 = r + 1 + i + 8 + circlePoints;
+        ulong p2 = r + 2 + i + 8 + circlePoints;
+        if ((1 + i) >= circlePoints) {
+            p2 = p2 - circlePoints;
+        }
+        S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n",
+            p2, p1, p1 + circlePoints, p2 + circlePoints)
+    }
+
 
 
 
 
     free(m);
 
-    *pRef += (8 + (circlePoints*2));
+    *pRef += (8 + (circlePoints*3));
 
     /* write a plug */
 }
