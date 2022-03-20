@@ -14,7 +14,7 @@
         S_W(h, st, "\n# "comment":\n") \
         S_W(h, st, "g "name"\n", ref)     \
         S_W(h, st, "usemtl "material"\n")
-#define DEG2RAD (360.0/M_PI/2.0)
+// #define DEG2RAD (360.0/M_PI/2.0)
 
 extern void objWriteFaceRadius(
     FILE *fOut, ulong *ref,

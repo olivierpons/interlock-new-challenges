@@ -3,6 +3,7 @@
 #include <string.h>
 #include <linux/limits.h>
 #include <time.h>
+#include <math.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
 #include "include/piece.h"
@@ -273,13 +274,13 @@ int main() {
         double z = 0.0;
         ulong ref = 0;
         objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, 0); // front
-//        objWriteFaceSimple(f_out, &ref, x, y, z, 180, 0, 0);  // back
-//        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, 90); // bottom
-//        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, -90);  // top
-//        objWriteFaceSimple(f_out, &ref, x, y, z, 90, 0, 0.0);  // right
-//        objWriteFaceSimple(f_out, &ref, x, y, z, -90, 0, 0.0); // left
-//        objWriteFaceRadius(f_out, &ref, x, y, z, 1.5, 0.2, 60);
-        objWriteFaceRadius(f_out, &ref, x, y, z+0.60, 0.05, 0.01, 30);
+        objWriteFaceSimple(f_out, &ref, x, y, z, M_PI, 0, 0);  // back
+        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, M_PI/2); // bottom
+        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, -M_PI/2);  // top
+        objWriteFaceSimple(f_out, &ref, x, y, z, M_PI/2, 0, 0.0);  // right
+        objWriteFaceSimple(f_out, &ref, x, y, z, -M_PI/2, 0, 0.0); // left
+        objWriteFaceRadius(f_out, &ref, x, y, z, 1.5, 0.2, 60);
+        objWriteFaceRadius(f_out, &ref, x, y, z+0.6, 0.05, 0.01, 20);
         fclose(f_out);
     } else {
         printf("? can't write to file -> aborting.\n");

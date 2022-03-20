@@ -47,7 +47,7 @@ void objWriteFaceRadius(
 {
     Pos *m;
     char s[255];
-    long double x, y, step = 360.0 / totalPoints, angle;
+    long double x, y, step = 2*M_PI / totalPoints, angle;
     ulong r = *ref;
     uint nbPoints = 0;
 
@@ -55,9 +55,9 @@ void objWriteFaceRadius(
 
     // "Inner" points: points of the inner circle:
     angle = 0.0;
-    while (angle < 360.0) {
-        x = centerX + radius * cosl(angle / DEG2RAD);
-        y = centerY + radius * sinl(angle / DEG2RAD);
+    while (angle < 2*M_PI) {
+        x = centerX + radius * cosl(angle /*/ DEG2RAD*/);
+        y = centerY + radius * sinl(angle /*/ DEG2RAD*/);
         m[nbPoints].x = x;
         m[nbPoints].y = y;
         m[nbPoints].z = centerZ;
@@ -67,9 +67,9 @@ void objWriteFaceRadius(
     // "Outer" points: points of the outer circle:
     angle = 0.0;
     radius += circleWidth;
-    while (angle < 360.0) {
-        x = centerX + radius * cosl(angle / DEG2RAD);
-        y = centerY + radius * sinl(angle / DEG2RAD);
+    while (angle < 2*M_PI) {
+        x = centerX + radius * cosl(angle /*/ DEG2RAD*/);
+        y = centerY + radius * sinl(angle /*/ DEG2RAD*/);
         m[nbPoints].x = x;
         m[nbPoints].y = y;
         m[nbPoints].z = centerZ;
@@ -123,7 +123,8 @@ void objWriteFaceSimple(
                  "offX=%.2lf, offY=%.2lf, rotZ=%.2lf\n",
         x, y, z, offX, offY, rotZ
     )
-    rotate(offX / DEG2RAD, rotZ / DEG2RAD, offY / DEG2RAD, m, 8);
+//    rotate(offX / DEG2RAD, rotZ / DEG2RAD, offY / DEG2RAD, m, 8);
+    rotate(offX, rotZ, offY, m, 8);
     S_W(
         fOut, s, "# x=%.2lf, y=%.2lf, z=%.2lf, "
                  "offX=%.2lf, offY=%.2lf, rotZ=%.2lf\n",
