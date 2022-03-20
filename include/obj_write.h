@@ -11,7 +11,7 @@
 #define W_P(h, st, x, y, z)  S_W(h, st, "v %lf %lf %lf\n", (x), (y), (z))
 /* W_O() = "Write Object()"*/
 #define W_O(h, st, comment, name, ref, material) \
-        S_W(h, st, "# "comment":\n") \
+        S_W(h, st, "\n# "comment":\n") \
         S_W(h, st, "g "name"\n", ref)     \
         S_W(h, st, "usemtl "material"\n")
 #define DEG2RAD (360.0/M_PI/2.0)

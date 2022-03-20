@@ -137,38 +137,49 @@ ulong objWriteFaceSimple(
 {
     char s[255];
     Pos m[] = {
-        {-0.5, -0.5, 0.5},
-        {-0.5, +0.5, 0.5},
-        {+0.5, +0.5, 0.5},
-        {+0.5, -0.5, 0.5},
         {-0.45, -0.45, 0.55},
         {-0.45, +0.45, 0.55},
         {+0.45, +0.45, 0.55},
         {+0.45, -0.45, 0.55},
+        {-0.5, -0.5, 0.5},
+        {-0.5, +0.5, 0.5},
+        {+0.5, +0.5, 0.5},
+        {+0.5, -0.5, 0.5},
     };
-    rotate(offX / DEG2RAD, rotZ / DEG2RAD, offY / DEG2RAD, m, 8);
-
     ulong r = *pRef;
-    W_O(fOut, s, "Borders", "Borders%ld", r, "Green")
-    S_W(fOut, s, "# pRef = %ld\n", r)
+    S_W(fOut, s, "# Full face: pRef = %ld\n", r)
+    S_W(
+        fOut, s, "# x=%.2lf, y=%.2lf, z=%.2lf, "
+                 "offX=%.2lf, offY=%.2lf, rotZ=%.2lf\n",
+        x, y, z, offX, offY, rotZ
+    )
+    rotate(offX / DEG2RAD, rotZ / DEG2RAD, offY / DEG2RAD, m, 8);
+    S_W(
+        fOut, s, "# x=%.2lf, y=%.2lf, z=%.2lf, "
+                 "offX=%.2lf, offY=%.2lf, rotZ=%.2lf\n",
+        x, y, z, offX, offY, rotZ
+    )
 
-    W_P(fOut, s, x + m[0].x, y + m[0].z, z + m[0].z)
-    W_P(fOut, s, x + m[1].x, y + m[1].z, z + m[1].z)
-    W_P(fOut, s, x + m[2].x, y + m[2].z, z + m[2].z)
-    W_P(fOut, s, x + m[3].x, y + m[3].z, z + m[3].z)
+    // "inner" square:
+    W_P(fOut, s, x + m[0].x, y + m[0].y, z + m[0].z) // point 1
+    W_P(fOut, s, x + m[1].x, y + m[1].y, z + m[1].z) // point 2
+    W_P(fOut, s, x + m[2].x, y + m[2].y, z + m[2].z) // point 3
+    W_P(fOut, s, x + m[3].x, y + m[3].y, z + m[3].z) // point 4
+    W_O(fOut, s, "Inner square", "InnerSquare%ld", r, "Orange")
+    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 1, r + 2, r + 3, r + 4)
 
-    W_P(fOut, s, x + m[4].x, y + m[4].y, z + m[4].z)
-    W_P(fOut, s, x + m[5].x, y + m[5].y, z + m[5].z)
-    W_P(fOut, s, x + m[6].x, y + m[6].y, z + m[6].z)
-    W_P(fOut, s, x + m[7].x, y + m[7].y, z + m[7].z)
+    // "outer" square:
+    W_P(fOut, s, x + m[4].x, y + m[4].y, z + m[4].z) // point 5
+    W_P(fOut, s, x + m[5].x, y + m[5].y, z + m[5].z) // point 6
+    W_P(fOut, s, x + m[6].x, y + m[6].y, z + m[6].z) // point 7
+    W_P(fOut, s, x + m[7].x, y + m[7].y, z + m[7].z) // point 8
 
+    W_O(fOut, s, "Outer square", "OuterSquare%ld", r, "Green")
     S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 1, r + 2, r + 6, r + 5)
     S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 2, r + 3, r + 7, r + 6)
     S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 3, r + 4, r + 8, r + 7)
-//    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 1, r + 5, r + 8, r + 4)
+    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 1, r + 5, r + 8, r + 4)
 
-    W_O(fOut, s, "Center", "Center%ld", r, "Orange")
-    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r + 5, r + 6, r + 7, r + 8)
 
     return *pRef += 8;
 }

@@ -273,11 +273,11 @@ int main() {
         double z = 0.0;
         ulong ref = 0;
         objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, 0); // front
-//        objWriteFaceSimple(f_out, &ref, x, y, z, 180, 0, 0);  // back
-//        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, 90); // bottom
-//        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, -90);  // top
-//        objWriteFaceSimple(f_out, &ref, x, y, z, 90, 0, 0.0);  // right
-//        objWriteFaceSimple(f_out, &ref, x, y, z, -90, 0, 0.0); // left
+        objWriteFaceSimple(f_out, &ref, x, y, z, 180, 0, 0);  // back
+        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, 90); // bottom
+        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, -90);  // top
+        objWriteFaceSimple(f_out, &ref, x, y, z, 90, 0, 0.0);  // right
+        objWriteFaceSimple(f_out, &ref, x, y, z, -90, 0, 0.0); // left
         objWriteFaceRadius(f_out, ref, x, y, z, 1.5, 32);
         fclose(f_out);
     } else {
