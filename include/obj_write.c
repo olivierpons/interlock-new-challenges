@@ -80,7 +80,7 @@ void objWriteFaceSimple(
         + circlePoints // smaller circle "off" the square
         ) * sizeof(Pos));
 
-    /* hard-code points of the 2 squares, relative to x/y/z: */
+    /* hard-code the 8 points of the 2 squares, relative to x/y/z: */
     SET_XYZ(m, 0, x - 0.45, y - 0.45, z + 0.55)
     SET_XYZ(m, 1, x - 0.45, y + 0.45, z + 0.55)
     SET_XYZ(m, 2, x + 0.45, y + 0.45, z + 0.55)
@@ -90,8 +90,7 @@ void objWriteFaceSimple(
     SET_XYZ(m, 6, x + 0.50, y + 0.50, z + 0.50)
     SET_XYZ(m, 7, x + 0.50, y - 0.50, z + 0.50)
 
-    ulong r = *pRef;
-    // Points of the inner circle:
+    // Points of the inner circle: (m+8) = (m + 8 points for the 2 squares) :
     calcRadiusPoints(m+8, x, y, z+1.0, radius, circlePoints);
     // Points of the outer circle:
     calcRadiusPoints(m+8+circlePoints, x, y, z+0.9, radius + 0.1, circlePoints);
@@ -104,6 +103,7 @@ void objWriteFaceSimple(
     // first, write *all* points
     objWritePoints(fOut, m, 0, 8 + (circlePoints*3));
 
+    ulong r = *pRef;
     // make the links = quads here:
     W_O(fOut, s, "Inner square", "InnerSquare%ld", r, "Orange")
 //    W_LINK(fOut, s, r + 1, r + 2, r + 3, r + 4)
@@ -135,8 +135,8 @@ void objWriteFaceSimple(
             p2, p1, p1 + circlePoints, p2 + circlePoints)
     }
 
-    /* - linking points: from inner to outer - */
-    W_O(fOut, s, "Linking inner to outer", "Circle%ld", r, "Red")
+    /* - linking points: from inner to circle on the square (same as above) - */
+    W_O(fOut, s, "Linking outer to circle on the square", "Circle%ld", r, "Red")
     for (ulong i = 0; i < circlePoints; ++i) {
         ulong p1 = r + 1 + i + 8 + circlePoints;
         ulong p2 = r + 2 + i + 8 + circlePoints;
@@ -147,9 +147,41 @@ void objWriteFaceSimple(
             p2, p1, p1 + circlePoints, p2 + circlePoints)
     }
 
-
-
-
+    /**
+     * ┌───────────────────────┬───────────────────────┐ *
+     * │ 4                     │                     1 │ *
+     * │                       │                   /   │ *
+     * │                   PI + (PI/2)           /     │ *
+     * │                       │               /       │ *
+     * │                       │     PI + PI/2 + PI/4  │ *
+     * │                       │           or          │ *
+     * │                       │      2PI - PI/4       │ *
+     * │                       │       /               │ *
+     * │                       │     /                 │ *
+     * │                       │   /                   │ *
+     * │                       │ /                     │ *
+     * │                center │                       │ *
+     * ├─── PI ────────────────┼─────── 0 / or 2 PI ───┤ *
+     * │                       │                       │ *
+     * │                       │                       │ *
+     * │                   /   │                       │ *
+     * │                 /     │                       │ *
+     * │               /       │                       │ *
+     * │             /         │                       │ *
+     * │           /           │                       │ *
+     * │         /             │                       │ *
+     * │   PI/2 + PI/4       PI/2                      │ *
+     * │     /                 │                       │ *
+     * │   /                   │                       │ *
+     * │ 3                     │                     2 │ *
+     * └───────────────────────┴───────────────────────┘
+     *
+     *
+     * if cos(x) > cos(M_PI_4) (cos(1 AND 2))               => between 1 and 2
+     * else if sin(x) < sin(M_PI_2 + M_PI_4) (sin(2 AND 3)) => between 2 and 3
+     * else if cos(x) < cos(M_PI_2 + M_PI_4) (cos(3 AND 4)) => between 3 and 4
+     * else                                                 => between 4 and 1
+     */
 
     free(m);
 
