@@ -272,12 +272,12 @@ int main() {
         double y = 0.0;
         double z = 0.0;
         ulong ref = 0;
-        ref = obj_write_face_simple(f_out, ref, x, y, z, 0.0, 0.0, 0); // front
-        ref = obj_write_face_simple(f_out, ref, x, y, z, 180, 0, 0);  // back
-        ref = obj_write_face_simple(f_out, ref, x, y, z, 0.0, 0.0, 90); // bottom
-        ref = obj_write_face_simple(f_out, ref, x, y, z, 0.0, 0.0, -90);  // top
-        ref = obj_write_face_simple(f_out, ref, x, y, z, 90, 0, 0.0);  // right
-        ref = obj_write_face_simple(f_out, ref, x, y, z, -90, 0, 0.0); // left
+        obj_write_face_simple(f_out, &ref, x, y, z, 0.0, 0.0, 0); // front
+//        obj_write_face_simple(f_out, &ref, x, y, z, 180, 0, 0);  // back
+//        obj_write_face_simple(f_out, &ref, x, y, z, 0.0, 0.0, 90); // bottom
+//        obj_write_face_simple(f_out, &ref, x, y, z, 0.0, 0.0, -90);  // top
+//        obj_write_face_simple(f_out, &ref, x, y, z, 90, 0, 0.0);  // right
+//        obj_write_face_simple(f_out, &ref, x, y, z, -90, 0, 0.0); // left
         obj_write_face_radius(f_out, ref, x, y, z, 1.5, 32);
         fclose(f_out);
     } else {

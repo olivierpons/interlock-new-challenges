@@ -12,5 +12,5 @@ add_executable(
         include/piece.c
         include/cube.c
         include/obj_write.h
-        include/obj_write.c)
+        include/obj_write.c include/3d.h)
 target_link_libraries(interlock m)

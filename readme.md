@@ -63,8 +63,6 @@ This might sound complex for a game with pieces that have only 2 cubes,
 but organizing things like this, I will be able to have more than 2 cubes for one
 piece.
 
-(Virtual) Example:
-
 ### 2022-03-13
 I updated this [`readme.md`](./readme.md) to explain why I'm doing this (*and motivate
 myself!*). If you are interested, I will gladly answer (to guess my mail, it's
@@ -98,11 +96,28 @@ Thanks to https://3dviewer.net/, I can validate my obj file:
 ![Capture of first valid Obj file](img/2022-03-18/obj.file.snapshot.png)
 
 ### Next steps
-- **Done 80%**: see `2022-03-18` above:
-  Make basic library to write a Wavefront `obj` file,
-  [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
-- **Done 0%**: Write one piece, and display it on an
-  [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer).
+1. **`80%`**: see `2022-03-18` above:
+   Make basic library to write a Wavefront `obj` file,
+   [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
+2. **`0%`**: Write one piece, and display it on an
+   [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
+3. **`0%`**: Convert a world (which will be full of pieces) to a 3D obj file;
+4. **`0%`**: Put a piece in the world, and generate the 3D obj file;
+5. **`0%`**: Put a piece in the world, and try to put another piece next to it
+   (only *valid* positions);
+6. **`0%`**: Algorithm that checks in the world if there are only "flat" 
+   visible faces (= no sockets / holes visible);
+7. **`0%`**: Pre-compute all rotations of a piece;
+8. **`0%`**: For all possible rotations, of **2** pieces, 
+   try to put them next to each other, and check if there are only "flat" 
+   visible faces. If so, generate the corresponding 3D obj file.
+9. **`0%`**: With *all combinations* of 2 pieces taken from the 12
+   possible pieces, try to make *all combinations* of *all rotations*
+   and generate + write 3D files of valid positions (= only flat faces
+   visible).
+10. **`0%`**: Use godotengine and read all the 3D files and show
+    them: see #1 results for this:
+    [Importing 3D scenes - Godot Docs](https://www.google.com/search?q=site%3Adocs.godotengine.org+%22importing+3d+scenes%22)
 
 ### Note for myself
 
