@@ -69,7 +69,7 @@ void objWriteFaceSimple(
     long double offX, long double offY, long double rotZ)
 {
     char s[255];
-    ulong circlePoints = 128;
+    ulong circlePoints = 12;
     long double radius = 0.20;
 
     Pos *m;
@@ -95,7 +95,7 @@ void objWriteFaceSimple(
     // Points of the outer circle:
     calcRadiusPoints(m+8+circlePoints, x, y, z+0.9, radius + 0.1, circlePoints);
     // Points of the circle "on" the square:
-    calcRadiusPoints(m+8+(circlePoints*2), x, y, z+0.56, radius + 0.1, circlePoints);
+    calcRadiusPoints(m+8+(circlePoints*2), x, y, z+0.55, radius + 0.1, circlePoints);
 
     // All points are calculated -> rotate them:
     rotate(offX, rotZ, offY, m, 8 + (circlePoints*3));
@@ -106,7 +106,7 @@ void objWriteFaceSimple(
     ulong r = *pRef;
     // make the links = quads here:
     W_O(fOut, s, "Inner square", "InnerSquare%ld", r, "Orange")
-//    W_LINK(fOut, s, r + 1, r + 2, r + 3, r + 4)
+    W_LINK(fOut, s, r + 1, r + 2, r + 3, r + 4)
     W_O(fOut, s, "Outer square", "OuterSquare%ld", r, "Green")
     W_LINK(fOut, s, r + 1, r + 2, r + 6, r + 5)
     W_LINK(fOut, s, r + 2, r + 3, r + 7, r + 6)
@@ -147,41 +147,76 @@ void objWriteFaceSimple(
             p2, p1, p1 + circlePoints, p2 + circlePoints)
     }
 
-    /**
-     * ┌───────────────────────┬───────────────────────┐ *
-     * │ 4                     │                     1 │ *
-     * │                       │                   /   │ *
-     * │                   PI + (PI/2)           /     │ *
-     * │                       │               /       │ *
-     * │                       │     PI + PI/2 + PI/4  │ *
-     * │                       │           or          │ *
-     * │                       │      2PI - PI/4       │ *
-     * │                       │       /               │ *
-     * │                       │     /                 │ *
-     * │                       │   /                   │ *
-     * │                       │ /                     │ *
-     * │                center │                       │ *
-     * ├─── PI ────────────────┼─────── 0 / or 2 PI ───┤ *
-     * │                       │                       │ *
-     * │                       │                       │ *
-     * │                   /   │                       │ *
-     * │                 /     │                       │ *
-     * │               /       │                       │ *
-     * │             /         │                       │ *
-     * │           /           │                       │ *
-     * │         /             │                       │ *
-     * │   PI/2 + PI/4       PI/2                      │ *
-     * │     /                 │                       │ *
-     * │   /                   │                       │ *
-     * │ 3                     │                     2 │ *
-     * └───────────────────────┴───────────────────────┘
-     *
-     *
-     * if cos(x) > cos(M_PI_4) (cos(1 AND 2))               => between 1 and 2
-     * else if sin(x) < sin(M_PI_2 + M_PI_4) (sin(2 AND 3)) => between 2 and 3
-     * else if cos(x) < cos(M_PI_2 + M_PI_4) (cos(3 AND 4)) => between 3 and 4
-     * else                                                 => between 4 and 1
-     */
+    Pos *startCircle = m+8+(circlePoints*2);
+    printf("--------------------------------------------\n");
+    for (ulong i = 0;i < circlePoints; ++i) {
+        ulong p1 = r + 1 + i + 8 + (circlePoints * 2);
+        ulong p2 = r + 2 + i + 8 + (circlePoints * 2);
+        long double sX = startCircle[i].x;
+        long double sY = startCircle[i].y;
+        long double angle = 2 * atanl(sY / ( x + sqrtl( (sX*sX) + (sY*sY) )));
+        printf("%lu, sX=%.2Lf, sY=%.2Lf\t:\t", i, sX, sY);
+        if (sX>=0) { // 4-1 ou 1-2
+            if (sY>=0) { // 4-1 ou 1-2 ou 2-3
+                if (sX > sY) {  // 1-2
+                    printf("1-2 (cond.1)\n");
+                    S_W(fOut, s, "f %lu//1 %lu//1 %lu//1\n",
+                        p1, r + 1, r + 2)
+                } else {
+                    printf("4-1 (cond.1)\n");
+                }
+            } else { // 1-2 ou 2-3
+                if (sX > fabsl(sY)) {  // 1-2
+                    printf("1-2 (cond.2)\n");
+                } else {
+                    printf("2-3 (cond.2)\n");
+                }
+            }
+        } else { // sX < 0
+            if (sY >= 0) {
+                if (sY >= fabsl(sX)) {
+                    printf("4-1 (cond.3)\n");
+                } else {
+                    printf("3-4 (cond.3)\n");
+                }
+            } else { // sX < 0 and sY < 0
+                if (sY >= sX) {
+                    printf("3-4 (cond.4)\n");
+                } else {
+                    printf("2-3 (cond.4)\n");
+                }
+            }
+        }
+        /**
+         * ┌───────────────────────┬───────────────────────┐ *
+         * │ 4                     │                     1 │ *
+         * │                       │                   /   │ *
+         * │                      PI/2               /     │ *
+         * │                       │               /       │ *
+         * │                       │     PI + PI/2 + PI/4  │ *
+         * │                       │           or          │ *
+         * │                       │      2PI - PI/4       │ *
+         * │                       │       /               │ *
+         * │                       │     /                 │ *
+         * │                       │   /                   │ *
+         * │                       │ /                     │ *
+         * │                center │                       │ *
+         * ├─── 0 ─────────────────┼──────────────── 0 ────┤ *
+         * │                       │                       │ *
+         * │                       │                       │ *
+         * │                   /   │                       │ *
+         * │                 /     │                       │ *
+         * │               /       │                       │ *
+         * │             /         │                       │ *
+         * │           /           │                       │ *
+         * │         /             │                       │ *
+         * │                    -PI/2                      │ *
+         * │     /                 │                       │ *
+         * │   /                   │                       │ *
+         * │ 3                     │                     2 │ *
+         * └───────────────────────┴───────────────────────┘ *
+         */
+    }
 
     free(m);
 

@@ -27,6 +27,7 @@
     (ptr)[(i)].y = (vy); \
     (ptr)[(i)].z = (vz);
 
+#define SGN(val) ((0 < (val)) - ((val) < 0))
 extern void objWriteFaceSimple(
     FILE *fOut, ulong *pRef,
     long double x, long double y, long double z,
