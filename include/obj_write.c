@@ -2,9 +2,11 @@
 // © Olivier Pons / HQF Development - 16/03/2022.
 //
 
+#include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdarg.h>
 #include "obj_write.h"
 #include "3d.h"
 
@@ -63,13 +65,48 @@ void objWritePoints(FILE *fOut, Pos *m, ulong start, ulong end)
         W_P(fOut, s, m[i].x, m[i].y, m[i].z)
     }
 }
+
+Links *linksAlloc(ulong total) {
+    Links *b = malloc(sizeof(*b) + sizeof(Links[total]));
+    if (b) {
+        b->comment[0] = '\0';
+        b->name[0] = '\0';
+        b->material[0] = '\0';
+        b->total = total;
+        memset(b->links, 0, total * sizeof(Links));
+    }
+    return b;
+}
+
+void linksCreate(Links **q, ulong idx, int total, ... )
+{
+    q[idx] = linksAlloc(total);
+    Links *l = q[idx];
+    va_list arguments;
+    /* Initializing arguments to store all values after total */
+    va_start (arguments, total );
+    for (ulong i = 0; i < total; i++ ) {
+        l->links[i] = va_arg(arguments, ulong);
+    }
+    va_end (arguments);
+}
+
+void objLinksWrite(FILE *fOut, Links *l) {
+    char s[255];
+    S_W(fOut, s, "f")
+    for (ulong i = 0; i < l->total; ++i) {
+        S_W(fOut, s, " %lu//1", l->links[i])
+    }
+    S_W(fOut, s, "\n")
+}
+
 void objWriteFaceSimple(
     FILE *fOut, ulong *pRef,
     long double x, long double y, long double z,
     long double offX, long double offY, long double rotZ)
 {
     char s[255];
-    ulong circlePoints = 12;
+    ulong circlePoints = 8;
     long double radius = 0.20;
 
     Pos *m;
@@ -79,6 +116,10 @@ void objWriteFaceSimple(
         + circlePoints // circle "off" the square
         + circlePoints // smaller circle "off" the square
         ) * sizeof(Pos));
+
+    const ulong NB_LINKS = 6 + circlePoints;
+    Links **q;
+    q = malloc(NB_LINKS * sizeof(Links *));
 
     /* hard-code the 8 points of the 2 squares, relative to x/y/z: */
     SET_XYZ(m, 0, x - 0.45, y - 0.45, z + 0.55)
@@ -97,31 +138,41 @@ void objWriteFaceSimple(
     // Points of the circle "on" the square:
     calcRadiusPoints(m+8+(circlePoints*2), x, y, z+0.55, radius + 0.1, circlePoints);
 
+    ulong r = *pRef;
+
     // All points are calculated -> rotate them:
     rotate(offX, rotZ, offY, m, 8 + (circlePoints*3));
 
     // first, write *all* points
     objWritePoints(fOut, m, 0, 8 + (circlePoints*3));
 
-    ulong r = *pRef;
-    // make the links = quads here:
-    W_O(fOut, s, "Inner square", "InnerSquare%ld", r, "Orange")
-    W_LINK(fOut, s, r + 1, r + 2, r + 3, r + 4)
-    W_O(fOut, s, "Outer square", "OuterSquare%ld", r, "Green")
-    W_LINK(fOut, s, r + 1, r + 2, r + 6, r + 5)
-    W_LINK(fOut, s, r + 2, r + 3, r + 7, r + 6)
-    W_LINK(fOut, s, r + 3, r + 4, r + 8, r + 7)
-    W_LINK(fOut, s, r + 1, r + 5, r + 8, r + 4)
+    // inner square
+    linksCreate(q, 0, 4, r + 1, r + 2, r + 3, r + 4);
+    L_OBJ(q[0], "Inner square", "InnerSquare%ld", r, "Orange")
+    // outer square
+    linksCreate(q, 1, 4, r + 1, r + 2, r + 6, r + 5);
+    linksCreate(q, 2, 4, r + 2, r + 3, r + 7, r + 6);
+    linksCreate(q, 3, 4, r + 3, r + 4, r + 8, r + 7);
+    linksCreate(q, 4, 4, r + 1, r + 5, r + 8, r + 4);
+    L_OBJ(q[1], "Outer square", "OuterSquare%ld", r, "Green")
 
-    // write whole central circle links:
-    S_W(fOut, s, "f")
+    // Central circle links = all points:
+    q[5] = linksAlloc(circlePoints);
     for (ulong i = 0; i < circlePoints; ++i) {
-        S_W(fOut, s, " %lu//1", r + 9 + i)
+        q[5]->links[i] = r + 9 + i;
     }
-    S_W(fOut, s, "\n")
+
+    for (int i = 0; i < 6; ++i) {
+        if (strlen(q[i]->comment) &&
+            strlen(q[i]->name) &&
+            strlen(q[i]->material)) {
+            L_W(fOut, s, q[i])
+        }
+        objLinksWrite(fOut, q[i]);
+    }
 
     /* - linking points: from inner to outer - */
-    W_O(fOut, s, "Linking inner to outer", "Circle%ld", r, "Purple")
+    W_OR(fOut, s, "Linking inner to outer", "Circle%ld", r, "Purple")
     for (ulong i = 0; i < circlePoints; ++i) {
         ulong p1 = r + 1 + i + 8;
         ulong p2 = r + 2 + i + 8;
@@ -131,12 +182,14 @@ void objWriteFaceSimple(
             // has to be changed to: f  1//1 16//1 32//1 17//1
             p2 = p2 - circlePoints;
         }
-        S_W(fOut, s, "f %lu//1 %lu//1 %lu//1 %lu//1\n",
-            p2, p1, p1 + circlePoints, p2 + circlePoints)
+        linksCreate(q, 6+i, 4, p2, p1, p1 + circlePoints, p2 + circlePoints);
+    }
+    for (ulong i = 0; i < circlePoints; ++i) {
+        objLinksWrite(fOut, q[6+i]);
     }
 
     /* - linking points: from inner to circle on the square (same as above) - */
-    W_O(fOut, s, "Linking outer to circle on the square", "Circle%ld", r, "Red")
+    W_OR(fOut, s, "Linking outer to circle on the square", "Circle%ld", r, "Red")
     for (ulong i = 0; i < circlePoints; ++i) {
         ulong p1 = r + 1 + i + 8 + circlePoints;
         ulong p2 = r + 2 + i + 8 + circlePoints;
@@ -155,7 +208,7 @@ void objWriteFaceSimple(
         long double sX = startCircle[i].x;
         long double sY = startCircle[i].y;
         long double angle = 2 * atanl(sY / ( x + sqrtl( (sX*sX) + (sY*sY) )));
-        printf("%lu, sX=%.2Lf, sY=%.2Lf\t:\t", i, sX, sY);
+//        printf("%lu, sX=%.2Lf, sY=%.2Lf\t:\t", i, sX, sY);
         if (sX>=0) { // 4-1 ou 1-2
             if (sY>=0) { // 4-1 ou 1-2 ou 2-3
                 if (sX > sY) {  // 1-2
@@ -217,6 +270,11 @@ void objWriteFaceSimple(
          * └───────────────────────┴───────────────────────┘ *
          */
     }
+
+    for (ulong i = 0; i < NB_LINKS; ++i) {
+        free(q[i]);
+    }
+    free(q);
 
     free(m);
 
