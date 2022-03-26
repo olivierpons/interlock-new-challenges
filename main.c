@@ -276,11 +276,11 @@ int main() {
         long double z = 0.0;
         ulong ref = 0;
         objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, 0); // front
-        objWriteFaceSimple(f_out, &ref, x, y, z, M_PI, 0, 0);  // back
-        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, M_PI/2); // bottom
-        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, -M_PI/2);  // top
+//        objWriteFaceSimple(f_out, &ref, x, y, z, M_PI, 0, 0);  // back
+//        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, M_PI/2); // bottom
+//        objWriteFaceSimple(f_out, &ref, x, y, z, 0.0, 0.0, -M_PI/2);  // top
 //        objWriteFaceSimple(f_out, &ref, x, y, z, M_PI/2, 0, 0.0);  // right
-        objWriteFaceSimple(f_out, &ref, x, y, z, -M_PI/2, 0, 0.0); // left
+//        objWriteFaceSimple(f_out, &ref, x, y, z, -M_PI/2, 0, 0.0); // left
         fclose(f_out);
     } else {
         printf("? can't write to file -> aborting.\n");

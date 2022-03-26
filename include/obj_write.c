@@ -62,6 +62,7 @@ void objWritePoints(FILE *fOut, Pos *m, ulong start, ulong end)
 {
     char s[255];
     for (ulong i = start; i <end; ++i) {
+        // S_W(fOut, s, "# point %lu\n", i + 1)
         W_P(fOut, s, m[i].x, m[i].y, m[i].z)
     }
 }
@@ -100,35 +101,46 @@ void objLinksWrite(FILE *fOut, Links *l) {
     S_W(fOut, s, "\n")
 }
 
+ulong closestPoint(Pos p, Pos *m, ulong nbPoints, ulong base) {
+    ulong result = base;  // default = first point = base + 0 = 0
+
+    long double x2 = (m[0].x-p.x); x2 = x2 * x2;
+    long double y2 = (m[0].y-p.y); y2 = y2 * y2;
+    long double z2 = (m[0].z-p.z); z2 = z2 * z2;
+    long double distance = sqrtl(x2+y2+z2);
+    long double maxDistance = distance;
+    for (ulong i = 1; i < nbPoints; ++i) {
+        x2 = (m[i].x-p.x); x2 = x2 * x2;
+        y2 = (m[i].y-p.y); y2 = y2 * y2;
+        z2 = (m[i].z-p.z); z2 = z2 * z2;
+        distance = sqrtl(x2+y2+z2);
+        if (distance < maxDistance) {
+            maxDistance = distance;
+            result = base + i;
+        }
+    }
+//    printf("result = %lu\n", result);
+    return result;
+}
+
 void objWriteFaceSimple(
     FILE *fOut, ulong *pRef,
     long double x, long double y, long double z,
     long double offX, long double offY, long double rotZ)
 {
     char s[255];
-    ulong circlePoints = 22;
+    ulong circlePoints = 6;
     long double radius = 0.20;
 
     Pos *m;
     m = malloc((
         8 // inner + outer square
         + circlePoints // circle "on" the square
-        + circlePoints // circle "off" the square
-        + circlePoints // smaller circle "off" the square
-        ) * sizeof(Pos));
+        + circlePoints // same circle but far the square
+        + circlePoints // smaller circle inside the previous
+    ) * sizeof(Pos));
 
-    /**
-     * NB_LINKS to do:
-     * 1 - 1 line linking 4 points for the central square
-     * 2 - 4 lines linking 4 points for the square "around" the central square
-     * 3 - x lines linking 4 points: 2 from inner circle -> 2 outer circle
-     * 4 - x lines linking 4 points: 2 on outer circle -> 2 on circle against the square
-     * 5 - y lines linking circle against the square -> square (complex math)
-     */
-    const ulong NB_LINKS = 6 + (circlePoints*3);
-    Links **q;
-    q = malloc(NB_LINKS * sizeof(Links *));
-
+    // region - Points computations -
     /* hard-code the 8 points of the 2 squares, relative to x/y/z: */
     SET_XYZ(m, 0, x - 0.45, y - 0.45, z + 0.55)
     SET_XYZ(m, 1, x - 0.45, y + 0.45, z + 0.55)
@@ -144,12 +156,35 @@ void objWriteFaceSimple(
     // Points of the outer circle:
     calcRadiusPoints(m+8+circlePoints, x, y, z+0.9, radius + 0.1, circlePoints);
     // Points of the circle "on" the square:
-    calcRadiusPoints(m+8+(circlePoints*2), x, y, z+0.55, radius + 0.1, circlePoints);
+    calcRadiusPoints(m+8+(circlePoints*2), x, y, z+0.65, radius + 0.1, circlePoints);
+    // endregion
 
+    /**
+     * NB_LINKS to do:
+     * 0     - 1 list of 4 points for the central square
+     * 1 ..4 - 4 lists of 4 points for the square around the central square
+     * 5     - 1 list linking all points of the central circle
+     * 6 .. 6 + circlePoints - [circlePoints] lists of 4 points:
+     *                         2 inner circle -> 2 outer circle
+     * 6 + circlePoints .. 6 + (circlePoints * 2) - same as above but:
+     *                         2 outer circle -> 2 on circle against the square
+     * 6 + (circlePoints * 2) .. 6 + (circlePoints * 2) + (circlePoints + 4)
+     *    - for each point, 1 list connects 3 points: 1 circle point (a)
+     *      with the next circle (b) and 1 point of the square which is the
+     *      closest point of the middle of (a) and (b)
+     *    - 4 lists: each connects 1 side of the square to 1 point = 4 lists
+     */
+
+    const ulong NB_LINKS = 6 + (circlePoints*2) + (circlePoints + 4);
+    Links **q;
+    q = calloc(NB_LINKS, sizeof(Links *));
+
+    // region - Links: square: 0..4 -
     ulong r = *pRef;
 
     // inner square
     linksCreate(q, 0, 4, r + 1, r + 2, r + 3, r + 4);
+//    linksCreate(q, 0, 4, r + 1, r + 1, r + 1, r + 1);
     L_OBJ(q[0], "Inner square", "InnerSquare%ld", r, "Orange")
 
     // outer square
@@ -158,13 +193,16 @@ void objWriteFaceSimple(
     linksCreate(q, 3, 4, r + 3, r + 4, r + 8, r + 7);
     linksCreate(q, 4, 4, r + 1, r + 5, r + 8, r + 4);
     L_OBJ(q[1], "Outer square", "OuterSquare%ld", r, "Green")
-
-    // Central circle links = all points:
+    // endregion - Links: square -
+    // region - Links: central circle (one list): 5 -
+    // Central circle links = all points
     q[5] = linksAlloc(circlePoints);
     for (ulong i = 0; i < circlePoints; ++i) {
         q[5]->links[i] = r + 9 + i;
     }
-
+    L_OBJ(q[5], "Central circle", "CentralCircle%ld", r, "Orange")
+    // endregion - Links: central circle -
+    // region - Links: from inner to outer circle: 6..6 + c.Points -
     /* - linking points: from inner to outer - */
     ulong base = 6;
     for (ulong i = 0; i < circlePoints; ++i) {
@@ -179,7 +217,8 @@ void objWriteFaceSimple(
         linksCreate(q, base+i, 4, p2, p1, p1 + circlePoints, p2 + circlePoints);
     }
     L_OBJ(q[base], "Linking inner to outer", "Circle%ld", r, "Purple")
-
+    // endregion
+    // region - Links: outer circle -> circle on the square: 6 + c.Points .. 6 + (c.Points*2) -
     /* - linking points: from inner to circle on the square (same as above) - */
     base = 6 + circlePoints;
     for (ulong i = 0; i < circlePoints; ++i) {
@@ -191,100 +230,75 @@ void objWriteFaceSimple(
         linksCreate(q, base+i, 4, p2, p1, p1 + circlePoints, p2 + circlePoints);
     }
     L_OBJ(q[base], "Linking outer to circle on the square", "Circle%ld", r, "Red")
+    // endregion
 
-    Pos *startCircle = m+8+(circlePoints*2);
-    printf("--------------------------------------------\n");
-    for (ulong i = 0;i < circlePoints; ++i) {
-        ulong p1 = r + 1 + i + 8 + (circlePoints * 2);
-        ulong p2 = r + 2 + i + 8 + (circlePoints * 2);
-        long double sX = startCircle[i].x;
-        long double sY = startCircle[i].y;
-        long double angle = 2 * atanl(sY / ( x + sqrtl( (sX*sX) + (sY*sY) )));
-//        printf("%lu, sX=%.2Lf, sY=%.2Lf\t:\t", i, sX, sY);
-        if (sX>=0) { // 4-1 ou 1-2
-            if (sY>=0) { // 4-1 ou 1-2 ou 2-3
-                if (sX > sY) {  // 1-2
-                    printf("1-2 (cond.1)\n");
-                } else {
-                    printf("4-1 (cond.1)\n");
-                }
-            } else { // 1-2 ou 2-3
-                if (sX > fabsl(sY)) {  // 1-2
-                    printf("1-2 (cond.2)\n");
-                } else {
-                    printf("2-3 (cond.2)\n");
-                }
-            }
-        } else { // sX < 0
-            if (sY >= 0) {
-                if (sY >= fabsl(sX)) {
-                    printf("4-1 (cond.3)\n");
-                } else {
-                    printf("3-4 (cond.3)\n");
-                }
-            } else { // sX < 0 and sY < 0
-                if (sY >= sX) {
-                    printf("3-4 (cond.4)\n");
-                } else {
-                    printf("2-3 (cond.4)\n");
-                }
-            }
+    base = 6 + (circlePoints*2);
+    ulong cStart = 8 + (circlePoints * 2);
+    ulong current = base;
+    ulong oldClosest, firstClosest;
+    for (ulong i = 0; i < circlePoints; ++i) {
+        Pos p1 = m[cStart + i];
+        Pos p2 = i != (circlePoints-1) ? m[cStart + i + 1] : m[cStart];
+        Pos p3;
+        p3.x = (p1.x + p2.x)/2;
+        p3.y = (p1.y + p2.y)/2;
+        p3.z = (p1.z + p2.z)/2;
+        ulong newClosest = closestPoint(p3, m, 4, 0);
+        if (i == 0) {
+            firstClosest = newClosest;
         }
-        /**
-         * ┌───────────────────────┬───────────────────────┐ *
-         * │ 4                     │                     1 │ *
-         * │                       │                   /   │ *
-         * │                      PI/2               /     │ *
-         * │                       │               /       │ *
-         * │                       │     PI + PI/2 + PI/4  │ *
-         * │                       │           or          │ *
-         * │                       │      2PI - PI/4       │ *
-         * │                       │       /               │ *
-         * │                       │     /                 │ *
-         * │                       │   /                   │ *
-         * │                       │ /                     │ *
-         * │                center │                       │ *
-         * ├─── 0 ─────────────────┼──────────────── 0 ────┤ *
-         * │                       │                       │ *
-         * │                       │                       │ *
-         * │                   /   │                       │ *
-         * │                 /     │                       │ *
-         * │               /       │                       │ *
-         * │             /         │                       │ *
-         * │           /           │                       │ *
-         * │         /             │                       │ *
-         * │                    -PI/2                      │ *
-         * │     /                 │                       │ *
-         * │   /                   │                       │ *
-         * │ 3                     │                     2 │ *
-         * └───────────────────────┴───────────────────────┘ *
-         */
+        linksCreate(q, current++, 3,
+                    r + cStart + i + 1,
+                    i != (circlePoints-1) ? r + cStart + i + 2 : r + cStart +  1,
+                    r + newClosest + 1);
+        if (i && oldClosest != newClosest) {
+            linksCreate(q, current++, 3,
+                        r + cStart + i + 1,
+                        r + newClosest + 1,
+                        r + oldClosest + 1);
+        }
+        oldClosest = newClosest;
+        if (i == (circlePoints-1)) {
+            linksCreate(q, current++, 3,
+                        r + cStart + 1,
+                        r + firstClosest + 1,
+                        r + newClosest + 1);
+        }
     }
+    L_OBJ(q[base], "Join!", "JoinCircleSquare%ld", r, "Blue")
 
     // All points and links are calculated -> rotate all:
     rotate(offX, rotZ, offY, m, 8 + (circlePoints*3));
 
+    // region - Writing points then links -
     // first, write *all* points
     objWritePoints(fOut, m, 0, 8 + (circlePoints*3));
 
     // then loop on links and write them:
-    for (int i = 0; i < 6 + (circlePoints*2); ++i) {
-        if (strlen(q[i]->comment) &&
-            strlen(q[i]->name) &&
-            strlen(q[i]->material)) {
-            L_W(fOut, s, q[i])
-        }
-        objLinksWrite(fOut, q[i]);
-    }
-
     for (ulong i = 0; i < NB_LINKS; ++i) {
-        free(q[i]);
+        if (q[i]) {
+            if (strlen(q[i]->comment) &&
+                strlen(q[i]->name) &&
+                strlen(q[i]->material)) {
+                L_W(fOut, s, q[i])
+            }
+            objLinksWrite(fOut, q[i]);
+        } else {
+            printf("?? WTF write? %lu\n", i);
+        }
+    }
+    // endregion - Writing points then links -
+    // region - Free memory -
+    for (ulong i = 0; i < NB_LINKS; ++i) {
+        if (q[i]) {
+            free(q[i]);
+        } else {
+            printf("?? %lu\n", i);
+        }
     }
     free(q);
-
     free(m);
+    // endregion - Free memory -
 
     *pRef += (8 + (circlePoints*3));
-
-    /* write a plug */
 }
