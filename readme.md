@@ -138,13 +138,13 @@ Blender:
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
 2. **`✓ 100%`**: Write one piece, and display it on an
    [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
-3. **`✗ ..0%`**: Convert a world (which will be full of pieces) to a 3D obj file;
-4. **`✗ ..0%`**: Put a piece in the world, and generate the 3D obj file;
-5. **`✗ ..0%`**: Put a piece in the world, and try to put another piece next to it
-   (only *valid* positions);
+3. **`✗ ..0%`**: Giving a whole world, generate a full 3D `obj` file;
+4. **`✗ ..0%`**: Put a piece in the world;
+5. **`✗ ..0%`**: Put a piece in the world, and try to put another piece next to 
+   it (only *valid* positions);
 6. **`✗ ..0%`**: Algorithm that checks in the world if there are only "flat" 
    visible faces (= no sockets / holes visible);
-7. **`✗ ..0%`**: Pre-compute all rotations of a piece;
+7. **`✗ ..0%`**: Pre-compute all rotations of a piece (for the world);
 8. **`✗ ..0%`**: For all possible rotations, of **2** pieces, 
    try to put them next to each other, and check if there are only "flat" 
    visible faces. If so, generate the corresponding 3D obj file.
@@ -152,34 +152,7 @@ Blender:
    possible pieces, try to make *all combinations* of *all rotations*
    and generate + write 3D files of valid positions (= only flat faces
    visible).
-10. **`✗ 0%`**: Not sure if I'll eveer do this. Use godotengine and read all
+10. **`✗ ..0%`**: Convert a world full of pieces to a 3D obj file;
+11. **`✗ 0%`**: Not sure if I'll ever do this. Use godotengine and read all
     the 3D files and show them: see #1 results for this:
     [Importing 3D scenes - Godot Docs](https://www.google.com/search?q=site%3Adocs.godotengine.org+%22importing+3d+scenes%22)
-
-### Note for myself
-
-Simple, stupid maths:
-
-`12` cubes, total combinations possible per cube = `20` -> `12` times `20`
-= `20*20*20*20*20*20*20*20*20*20*20*20 = 4.096.000.000.000.000`
-Let's say this in english:
-```
-The result:        4 096 000 000 000 000
-A trillion is:         1 000 000 000 000
-A quadrillion is:  1 000 000 000 000 000
-```
-so **4.096 quadrillions of possibilities**
-
-`bogomips` gave me: `7200.00` =  `~7200 Mips` = `7200000000`
-
-Let's imagine that `1` full test = `1` operation (of course, this
-is impossible, but c'mon let's do the maths for fun).
-This would give:
-
-```
-(20*20*20*20*20*20*20*20*20*20*20*20)/7200000000 = 568888
-568888 / 3600 = 158 hours = ~6 days
-```
-
-But 1 operation is far more than 1 "test", so this will ge me
-*far more than ~6 days*.
