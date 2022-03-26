@@ -51,10 +51,17 @@ typedef struct Links {
     ulong links[];
 } Links;
 
-extern void objWriteFaceSimple(
+extern void objWriteSimpleFace(
     FILE *fOut, ulong *pRef,
-    long double x, long double y, long double z,
-    long double offX, long double offY, long double rotZ
+    long double offX, long double offY, long double offZ,
+    long double rotX, long double rotY, long double rotZ
+);
+
+extern void objWriteFaceWithPlug(
+    FILE *fOut, ulong *pRef,
+    long double offX, long double offY, long double offZ,
+    long double rotX, long double rotY, long double rotZ,
+    bool goOutside
 );
 
 extern Links *linksAlloc(ulong total);

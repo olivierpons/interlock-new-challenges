@@ -114,18 +114,29 @@ Now I have to join the points of a circle with the points of a square
 So I've done 50% of the point `2` (see below).
 
 ### 2022-03-26
-I've finally done it! I've managed to connect a sphere to a square!
+01h35: I've finally done it! I've managed to connect a sphere to a square!
 This wasn't easy, believe me!
 Now I can have pieces with plugs & sockets!
 Step 2 (below) almost done!
 
 ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-01h25.png)
 
+19h24: Step 2 (below) 100% done:
+
+Not only can I generate a full piece...
+
+![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h22.png)
+
+...but the full piece is also perfect in the 3D sense, I can open it under
+Blender:
+
+![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h29.png)
+
 ### Next steps
 1. **`✓ 100%`**: see `2022-03-18` above:
    Make basic library to write a Wavefront `obj` file,
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
-2. **`✗ .90%`**: Write one piece, and display it on an
+2. **`✓ 100%`**: Write one piece, and display it on an
    [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
 3. **`✗ ..0%`**: Convert a world (which will be full of pieces) to a 3D obj file;
 4. **`✗ ..0%`**: Put a piece in the world, and generate the 3D obj file;

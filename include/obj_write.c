@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include "obj_write.h"
 #include "3d.h"
 
@@ -123,68 +124,189 @@ ulong closestPoint(Pos p, Pos *m, ulong nbPoints, ulong base) {
     return result;
 }
 
-void objWriteFaceSimple(
-    FILE *fOut, ulong *pRef,
-    long double x, long double y, long double z,
-    long double offX, long double offY, long double rotZ)
+void objWriteLinks(FILE *fOut, Links **q, ulong nb_links)
 {
     char s[255];
-    ulong circlePoints = 6;
-    long double radius = 0.20;
+    // Loop on links and write them:
+    for (ulong i = 0; i < nb_links; ++i) {
+        if (q[i]) {
+            if (strlen(q[i]->comment) &&
+                strlen(q[i]->name) &&
+                strlen(q[i]->material)) {
+                L_W(fOut, s, q[i])
+            }
+            objLinksWrite(fOut, q[i]);
+        } else {  /* should never happen */
+            printf("?? WTF write? %lu\n", i);
+        }
+    }
+}
+void objWriteSimpleFace(
+    FILE *fOut, ulong *pRef,
+    long double offX, long double offY, long double offZ,
+    long double rotX, long double rotY, long double rotZ)
+{
+    const ulong NB_POINTS = 8; // inner + outer square
+    Pos *m = malloc(NB_POINTS * sizeof(Pos));
+    if (!m) { /* should never happen, I should handle this better... */
+        exit(-1);
+    }
+    // region - Points computations -
+    /* Hard-coded points of the squares (offsets done later, AFTER rotation): */
+    /* Central square: */
+    SET_XYZ(m, 0, -0.45, -0.45, +0.55)
+    SET_XYZ(m, 1, -0.45, +0.45, +0.55)
+    SET_XYZ(m, 2, +0.45, +0.45, +0.55)
+    SET_XYZ(m, 3, +0.45, -0.45, +0.55)
+    /* Bigger square: */
+    SET_XYZ(m, 4, -0.50, -0.50, +0.50)
+    SET_XYZ(m, 5, -0.50, +0.50, +0.50)
+    SET_XYZ(m, 6, +0.50, +0.50, +0.50)
+    SET_XYZ(m, 7, +0.50, -0.50, +0.50)
+    // endregion
+    // inner square
 
-    Pos *m;
-    m = malloc((
+    const ulong NB_LINKS = 5;
+    Links **q = calloc(NB_LINKS, sizeof(Links *));
+    if (!q) { /* should never happen, I should handle this better... */
+        exit(-1);
+    }
+
+    // region - Links: square -
+    ulong r = *pRef;
+    linksCreate(q, 0, 4, r + 1, r + 2, r + 3, r + 4);
+    L_OBJ(q[0], "Inner square", "InnerSquare%ld", r, "Orange")
+
+    // outer square
+    linksCreate(q, 1, 4, r + 1, r + 2, r + 6, r + 5);
+    linksCreate(q, 2, 4, r + 2, r + 3, r + 7, r + 6);
+    linksCreate(q, 3, 4, r + 3, r + 4, r + 8, r + 7);
+    linksCreate(q, 4, 4, r + 1, r + 5, r + 8, r + 4);
+    L_OBJ(q[1], "Outer square", "OuterSquare%ld", r, "Green")
+    // endregion - Links: square -
+
+    // All points and links are calculated -> rotate all:
+    rotate(rotX, rotZ, rotY, m, NB_POINTS);
+    /* After rotation, apply offsets to all points */
+    Pos *tmp = m;
+    for (ulong i = 0; i < NB_POINTS; ++i) {
+        tmp->x += offX;
+        tmp->y += offY;
+        tmp->z += offZ;
+        tmp++;
+    }
+    // first, write *all* points
+    objWritePoints(fOut, m, 0, NB_POINTS);
+    // then loop on links and write them:
+    objWriteLinks(fOut, q, NB_LINKS);
+    // region - Free memory -
+    for (ulong i = 0; i < NB_LINKS; ++i) {
+        if (q[i]) {
+            free(q[i]);
+        } else {
+            printf("?? %lu\n", i);
+        }
+    }
+    free(q);
+    free(m);
+    // endregion - Free memory -
+    *pRef += 8;
+}
+void objWriteFaceWithPlug(
+    FILE *fOut, ulong *pRef,
+    long double offX, long double offY, long double offZ,
+    long double rotX, long double rotY, long double rotZ,
+    bool goOutside)
+{
+    char s[255];
+    ulong circlePoints = 100;
+    long double radius = 0.20;
+    const ulong NB_POINTS = (
         8 // inner + outer square
         + circlePoints // circle "on" the square
         + circlePoints // same circle but far the square
         + circlePoints // smaller circle inside the previous
-    ) * sizeof(Pos));
+    );
+
+    Pos *m = malloc(NB_POINTS * sizeof(Pos));
+    if (!m) { /* should never happen, I should handle this better... */
+        exit(-1);
+    }
 
     // region - Points computations -
-    /* hard-code the 8 points of the 2 squares, relative to x/y/z: */
-    SET_XYZ(m, 0, x - 0.45, y - 0.45, z + 0.55)
-    SET_XYZ(m, 1, x - 0.45, y + 0.45, z + 0.55)
-    SET_XYZ(m, 2, x + 0.45, y + 0.45, z + 0.55)
-    SET_XYZ(m, 3, x + 0.45, y - 0.45, z + 0.55)
-    SET_XYZ(m, 4, x - 0.50, y - 0.50, z + 0.50)
-    SET_XYZ(m, 5, x - 0.50, y + 0.50, z + 0.50)
-    SET_XYZ(m, 6, x + 0.50, y + 0.50, z + 0.50)
-    SET_XYZ(m, 7, x + 0.50, y - 0.50, z + 0.50)
-
-    // Points of the inner circle: (m+8) = (m + 8 points for the 2 squares) :
-    calcRadiusPoints(m+8, x, y, z+1.0, radius, circlePoints);
-    // Points of the outer circle:
-    calcRadiusPoints(m+8+circlePoints, x, y, z+0.9, radius + 0.1, circlePoints);
-    // Points of the circle "on" the square:
-    calcRadiusPoints(m+8+(circlePoints*2), x, y, z+0.65, radius + 0.1, circlePoints);
+    /* Hard-coded points of the squares (offsets done later, AFTER rotation): */
+    Pos *tmp = m + 8;
+    if (goOutside) {
+        /* Central square: */
+        SET_XYZ(m, 0, -0.45, -0.45, +0.55)
+        SET_XYZ(m, 1, -0.45, +0.45, +0.55)
+        SET_XYZ(m, 2, +0.45, +0.45, +0.55)
+        SET_XYZ(m, 3, +0.45, -0.45, +0.55)
+        // Points of the inner circle: (m+8):
+        calcRadiusPoints(tmp, 0, 0, 1.0, radius, circlePoints);
+        // Points of the outer circle = add circlePoints:
+        tmp += circlePoints;
+        calcRadiusPoints(tmp, 0, 0, 0.9, radius + 0.1, circlePoints);
+        // Points of the circle close to the square = add circlePoints:
+        tmp += circlePoints;
+        calcRadiusPoints(tmp, 0, 0, 0.65, radius + 0.1, circlePoints);
+    } else {
+        /* Central square: */
+        SET_XYZ(m, 0, -0.45, -0.45, +0.45)
+        SET_XYZ(m, 1, -0.45, +0.45, +0.45)
+        SET_XYZ(m, 2, +0.45, +0.45, +0.45)
+        SET_XYZ(m, 3, +0.45, -0.45, +0.45)
+        // Points of the inner circle: (m+8):
+        calcRadiusPoints(tmp, 0, 0, 0, radius, circlePoints);
+        // Points of the outer circle = add circlePoints:
+        tmp += circlePoints;
+        calcRadiusPoints(tmp, 0, 0, 0.1, radius + 0.1, circlePoints);
+        // Points of the circle close to the square = add circlePoints:
+        tmp += circlePoints;
+        calcRadiusPoints(tmp, 0, 0, 0.45, radius + 0.1, circlePoints);
+    }
+    /* Bigger square: */
+    SET_XYZ(m, 4, -0.50, -0.50, +0.50)
+    SET_XYZ(m, 5, -0.50, +0.50, +0.50)
+    SET_XYZ(m, 6, +0.50, +0.50, +0.50)
+    SET_XYZ(m, 7, +0.50, -0.50, +0.50)
     // endregion
 
     /**
      * NB_LINKS to do:
+     *
      * 0     - 1 list of 4 points for the central square
+     *
      * 1 ..4 - 4 lists of 4 points for the square around the central square
+     *
      * 5     - 1 list linking all points of the central circle
-     * 6 .. 6 + circlePoints - [circlePoints] lists of 4 points:
-     *                         2 inner circle -> 2 outer circle
-     * 6 + circlePoints .. 6 + (circlePoints * 2) - same as above but:
+     *
+     * 6 .. (6 + circlePoints) - [circlePoints] lists of 4 points:
+     *                                          2 inner circle -> 2 outer circle
+     *
+     * (6 + circlePoints) .. (6 + (circlePoints * 2)) - same as above but:
      *                         2 outer circle -> 2 on circle against the square
-     * 6 + (circlePoints * 2) .. 6 + (circlePoints * 2) + (circlePoints + 4)
+     *
+     * (6 + (circlePoints * 2)) .. (6 + (circlePoints * 2) + (circlePoints + 4))
      *    - for each point, 1 list connects 3 points: 1 circle point (a)
-     *      with the next circle (b) and 1 point of the square which is the
-     *      closest point of the middle of (a) and (b)
-     *    - 4 lists: each connects 1 side of the square to 1 point = 4 lists
+     *      with the next circle point (b) and 1 point of the square which
+     *      is the closest point of the middle of (a) and (b)
+     *    - 4 lists: 4 times 1 side of the square (2 points) with 1 circle point
      */
 
     const ulong NB_LINKS = 6 + (circlePoints*2) + (circlePoints + 4);
     Links **q;
     q = calloc(NB_LINKS, sizeof(Links *));
+    if (!q) { /* should never happen, I should handle this better... */
+        exit(-1);
+    }
 
     // region - Links: square: 0..4 -
     ulong r = *pRef;
 
     // inner square
-    linksCreate(q, 0, 4, r + 1, r + 2, r + 3, r + 4);
-//    linksCreate(q, 0, 4, r + 1, r + 1, r + 1, r + 1);
+//    linksCreate(q, 0, 4, r + 1, r + 2, r + 3, r + 4);
+    linksCreate(q, 0, 4, r + 1, r + 1, r + 1, r + 1);
     L_OBJ(q[0], "Inner square", "InnerSquare%ld", r, "Orange")
 
     // outer square
@@ -231,7 +353,7 @@ void objWriteFaceSimple(
     }
     L_OBJ(q[base], "Linking outer to circle on the square", "Circle%ld", r, "Red")
     // endregion
-
+    // region - Links: circle on the square -> square
     base = 6 + (circlePoints*2);
     ulong cStart = 8 + (circlePoints * 2);
     ulong current = base;
@@ -265,29 +387,24 @@ void objWriteFaceSimple(
                         r + newClosest + 1);
         }
     }
-    L_OBJ(q[base], "Join!", "JoinCircleSquare%ld", r, "Blue")
+    L_OBJ(q[base], "Join circle to square!", "JoinCircleSquare%ld", r, "Blue")
+    // endregion
 
     // All points and links are calculated -> rotate all:
-    rotate(offX, rotZ, offY, m, 8 + (circlePoints*3));
-
-    // region - Writing points then links -
-    // first, write *all* points
-    objWritePoints(fOut, m, 0, 8 + (circlePoints*3));
-
-    // then loop on links and write them:
-    for (ulong i = 0; i < NB_LINKS; ++i) {
-        if (q[i]) {
-            if (strlen(q[i]->comment) &&
-                strlen(q[i]->name) &&
-                strlen(q[i]->material)) {
-                L_W(fOut, s, q[i])
-            }
-            objLinksWrite(fOut, q[i]);
-        } else {
-            printf("?? WTF write? %lu\n", i);
-        }
+    rotate(rotX, rotZ, rotY, m, NB_POINTS);
+    /* After rotation, apply offsets to all points */
+    tmp = m;
+    for (ulong i = 0; i < NB_POINTS; ++i) {
+        tmp->x += offX;
+        tmp->y += offY;
+        tmp->z += offZ;
+        tmp++;
     }
-    // endregion - Writing points then links -
+
+    // first, write *all* points
+    objWritePoints(fOut, m, 0, NB_POINTS);
+    // then loop on links and write them:
+    objWriteLinks(fOut, q, NB_LINKS);
     // region - Free memory -
     for (ulong i = 0; i < NB_LINKS; ++i) {
         if (q[i]) {

@@ -7,16 +7,18 @@
 
 #include "custom_types.h"
 
-typedef struct Cube {
-    ubyte n;
-    ubyte e;
-    ubyte s;
-    ubyte w;
-    ubyte f;  /* front */
-    ubyte b;  /* behind */
-} Cube;
+typedef enum {
+    EMPTY='e', WALL='0', PLUG='+', HOLE='.', LINK='|',
+} Face;
 
-enum { EMPTY='e', WALL='0', PLUG='+', HOLE='.', LINK='|'};
+typedef struct Cube {
+    Face n;
+    Face e;
+    Face s;
+    Face w;
+    Face f;  /* front */
+    Face b;  /* behind */
+} Cube;
 
 extern char *cubeToStr(Cube c);
 #endif //INTERLOCK_CUBE_H
