@@ -7,4 +7,9 @@
 
 typedef unsigned char ubyte;
 
+#ifdef _WIN32
+typedef unsigned long ulong;
+typedef unsigned int uint;
+#endif
+
 #endif //INTERLOCK_CUSTOM_TYPES_H

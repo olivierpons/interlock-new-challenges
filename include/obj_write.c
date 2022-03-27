@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <string.h>
 #include "obj_write.h"
 #include "3d.h"
 
@@ -219,7 +220,7 @@ void objWriteFaceWithPlug(
     bool goOutside)
 {
     char s[255];
-    ulong circlePoints = 100;
+    ulong circlePoints = 10;
     long double radius = 0.20;
     const ulong NB_POINTS = (
         8 // inner + outer square

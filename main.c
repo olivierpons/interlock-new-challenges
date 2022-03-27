@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __linux__
 #include <linux/limits.h>
+#endif
 #include <time.h>
 #include <math.h>
 #include "include/custom_types.h"
@@ -250,12 +252,21 @@ int main() {
     char *dst_path = "../3d-obj/";
     char dstExpandedPath[PATH_MAX + 1];
     char *ptr;
+#ifdef __linux__
     ptr = realpath(dst_path, dstExpandedPath);
+    if (ptr[strlen(ptr)-2] != '/') {
+        strcat(ptr, '/');
+    }
+#elif _WIN32
+    ptr = _fullpath(dstExpandedPath, dst_path, PATH_MAX);
+#else
+#error "OS not supported!"
+#endif
     if (!ptr) {
         printf("? Can't expand %s\n", dst_path);
         return -1;
     }
-    strcat(ptr, "/chest.obj");
+    strcat(ptr, "chest.obj");
     printf("Destination file: %s\n", ptr);
 
     FILE *f_out;
@@ -282,12 +293,18 @@ int main() {
 //        objWriteSimpleFace(f_out, &ref, x, y, z, M_PI/2, 0, 0.0);  // right
         objWriteSimpleFace(f_out, &ref, x, y, z, -M_PI/2, 0, 0.0); // left
 
-        objWriteFaceWithPlug(f_out, &ref, 1 + x, y, z, 0.0, 0.0, 0, false); // front
-        objWriteSimpleFace(f_out, &ref, 1 + x, y, z, M_PI, 0, 0);  // back
-        objWriteSimpleFace(f_out, &ref, 1 + x, y, z, 0.0, 0.0, M_PI / 2); // bottom
-        objWriteSimpleFace(f_out, &ref, 1 + x, y, z, 0.0, 0.0, -M_PI / 2);  // top
-        objWriteSimpleFace(f_out, &ref, 1 + x, y, z, M_PI / 2, 0, 0.0);  // right
-//        objWriteFaceWithPlug(f_out, &ref, 1 +x, y, z, -M_PI/2, 0, 0.0, true); // left
+        for (int k = 0; k < 5; ++k) {
+        for (int j = 0; j < 5; ++j) {
+        for (int i = 0; i < 5; ++i) {
+            objWriteFaceWithPlug(f_out, &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), 0.0, 0.0, 0, false); // front
+            objWriteSimpleFace(f_out,   &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), M_PI, 0, 0);  // back
+            objWriteSimpleFace(f_out,   &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), 0.0, 0.0, M_PI / 2); // bottom
+            objWriteSimpleFace(f_out,   &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), 0.0, 0.0, -M_PI / 2);  // top
+            objWriteSimpleFace(f_out,   &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), M_PI / 2, 0, 0.0);  // right
+//        objWriteFaceWithPlug(f_out,   &ref, 1 +x, y, z, -M_PI/2, 0, 0.0, true); // left
+        }
+        }
+        }
         fclose(f_out);
     } else {
         printf("? can't write to file -> aborting.\n");
