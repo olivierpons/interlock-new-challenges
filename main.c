@@ -19,7 +19,7 @@ const ubyte Z = 10;
 
 // #define xyz(x, y, z) ((x) + ((y)*X) + ((z)*X*Y))
 
-Cube* spaces = NULL;
+Cube* world = NULL;
 Piece **pieces = NULL;
 
 const Part refs[][2] ={
@@ -207,17 +207,17 @@ void piecesFree() {
     }
 }
 void spacesFree() {
-    if (spaces) {
-        free(spaces);
-        spaces = NULL;
+    if (world) {
+        free(world);
+        world = NULL;
     } else {
-        printf("? No spaces to free ?\n");
+        printf("? No world to free ?\n");
     }
 }
 
 int main() {
     pieces = calloc(NB_PIECES, sizeof(Piece *));
-    spaces = malloc(sizeof(Cube) * X * Y * Z);
+    world = malloc(sizeof(Cube) * X * Y * Z);
     atexit(piecesFree);
     atexit(spacesFree);
     for (int i=0; i < NB_PIECES; ++i) {
@@ -254,17 +254,13 @@ int main() {
     char *ptr;
 #ifdef __linux__
     ptr = realpath(dst_path, dstExpandedPath);
-    if (ptr[strlen(ptr)-2] != '/') {
-        strcat(ptr, '/');
-    }
 #elif _WIN32
     ptr = _fullpath(dstExpandedPath, dst_path, PATH_MAX);
 #else
 #error "OS not supported!"
 #endif
-    if (!ptr) {
-        printf("? Can't expand %s\n", dst_path);
-        return -1;
+    if (ptr[strlen(ptr)-1] != os_char_separator) {
+        strcat(ptr, os_str_separator);
     }
     strcat(ptr, "chest.obj");
     printf("Destination file: %s\n", ptr);

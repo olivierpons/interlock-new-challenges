@@ -7,6 +7,20 @@
 
 typedef unsigned char ubyte;
 
+char os_char_separator =
+#ifdef _WIN32
+    '\\';
+#else
+    '/';
+#endif
+
+char *os_str_separator =
+#ifdef _WIN32
+    "\\";
+#else
+    "/";
+#endif
+
 #ifdef _WIN32
 typedef unsigned long ulong;
 typedef unsigned int uint;
