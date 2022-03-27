@@ -7,6 +7,7 @@ add_executable(
         interlock main.c
         include/cube.h
         include/custom_types.h
+        include/custom_types.c
         include/part.h
         include/piece.h
         include/piece.c

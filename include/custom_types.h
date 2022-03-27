@@ -7,19 +7,8 @@
 
 typedef unsigned char ubyte;
 
-char os_char_separator =
-#ifdef _WIN32
-    '\\';
-#else
-    '/';
-#endif
-
-char *os_str_separator =
-#ifdef _WIN32
-    "\\";
-#else
-    "/";
-#endif
+extern char os_char_separator;
+extern char *os_str_separator;
 
 #ifdef _WIN32
 typedef unsigned long ulong;
