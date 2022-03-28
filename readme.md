@@ -18,18 +18,18 @@ My advice: if you're into brain-teasers, buy it, it's worth very penny!
 
 ## Why do a program to generate all challenges for this brain-teaser?
 There are 50 possible combinations / challenges.
-The two hardest ones are these, which use 11 pieces:
+The two hardest ones are these, which use 11 blocks:
 ![Interlock, the hide the plug and socket puzzle!](img/manual-solution-49-and-50.png)
 
-So, the two hardest ones use 11 pieces... and we have 12 pieces!
+So, the two hardest ones use 11 blocks... and we have 12 blocks!
 
-**There is no combinations / challenges that uses the 12 pieces of the game!**
+**There is no combinations / challenges that uses the 12 blocks of the game!**
 
 I find this very frustrating.
 
 How about programming a solver, and after I've done this, create new challenges,
-and maybe if it's possible, create new pieces to see if we can have different
-pieces and brand-new challenges?
+and maybe if it's possible, create new blocks to see if we can have different
+blocks and brand-new challenges?
 
 ## How to do it? Which language, and why?
 
@@ -57,24 +57,24 @@ you have to find a workaround...
 
 ## Diary
 
-### 12-03-2022
+### 2022-03-12
 I worked this whole saturday afternoon to have a basic C working skeleton:
-- a list of "pieces"
-- a "piece" is made of "parts"
-- a "part" is a 3D cube + information saying if it's the base of the "piece"
-or a 3D cube with an *offset* from the base of the "piece"
+- a list of "blocks"
+- a "block is made of "parts"
+- a "part" is a 3D cube + information saying if it's the base of the "block"
+or a 3D cube with an *offset* from the base of the "block"
 
-This might sound complex for a game with pieces that have only 2 cubes,
-but organizing things like this, I will be able to have more than 2 cubes for one
-piece.
+This might sound complex for a game with blocks that have only 2 cubes,
+but organizing things like this, I will be able to have more than 2 cubes for 
+one block.
 
 ### 2022-03-13
-I updated this [`readme.md`](./readme.md) to explain why I'm doing this (*and motivate
-myself!*). If you are interested, I will gladly answer (to guess my mail, it's
-simple: take [my name from here](https://github.com/olivierpons/) and add
-"at gmail.com").
+I updated this [`readme.md`](./readme.md) to explain why I'm doing this (*and 
+motivate myself!*). If you are interested, I will gladly answer (to guess 
+my mail, it's simple: take 
+[my name from here](https://github.com/olivierpons/) and add "at gmail.com").
 
-Entered the 12 pieces configuration in my `main.c` file.
+Entered the 12 blocks configuration in my `main.c` file.
 
 Made my code run under Linux, so I can use valgrind.
 
@@ -91,9 +91,9 @@ Yay!
 ### 2022-03-18
 First "good" valid 3D obj file.
 I still have problems with the color vector: I should 
-create/re-use if existing one for each piece I generate,
+create/re-use if existing one for each block I generate,
 but I just want to focus on generating a whole Interlock
-piece.
+block.
 
 
 Thanks to https://3dviewer.net/, I can validate my obj file:
@@ -116,43 +116,46 @@ So I've done 50% of the point `2` (see below).
 ### 2022-03-26
 01h35: I've finally done it! I've managed to connect a sphere to a square!
 This wasn't easy, believe me!
-Now I can have pieces with plugs & sockets!
+Now I can have blocks with plugs & sockets!
 Step 2 (below) almost done!
 
 ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-01h25.png)
 
 19h24: Step 2 (below) 100% done:
 
-Not only can I generate a full piece...
+Not only can I generate a full block...
 
 ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h22.png)
 
-...but the full piece is also perfect in the 3D sense, I can open it under
+...but the full block is also working - in the 3D sense: I can open it under
 Blender:
 
 ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h29.png)
+
+### 2022-03-27
+
 
 ### Next steps
 1. **`✓ 100%`**: see `2022-03-18` above:
    Make basic library to write a Wavefront `obj` file,
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
-2. **`✓ 100%`**: Write one piece, and display it on an
+2. **`✓ 100%`**: Write one block, and display it on an
    [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
 3. **`✗ ..0%`**: Giving a whole world, generate a full 3D `obj` file;
-4. **`✗ ..0%`**: Put a piece in the world;
-5. **`✗ ..0%`**: Put a piece in the world, and try to put another piece next to 
+4. **`✗ ..0%`**: Put a block in the world;
+5. **`✗ ..0%`**: Put a block in the world, and try to put another block next to 
    it (only *valid* positions);
 6. **`✗ ..0%`**: Algorithm that checks in the world if there are only "flat" 
    visible faces (= no sockets / holes visible);
-7. **`✗ ..0%`**: Pre-compute all rotations of a piece (for the world);
-8. **`✗ ..0%`**: For all possible rotations, of **2** pieces, 
+7. **`✗ ..0%`**: Pre-compute all rotations of a block (for the world);
+8. **`✗ ..0%`**: For all possible rotations, of **2** blocks, 
    try to put them next to each other, and check if there are only "flat" 
    visible faces. If so, generate the corresponding 3D obj file.
-9. **`✗ ..0%`**: With *all combinations* of 2 pieces taken from the 12
-   possible pieces, try to make *all combinations* of *all rotations*
+9. **`✗ ..0%`**: With *all combinations* of 2 blocks taken from the 12
+   possible blocks, try to make *all combinations* of *all rotations*
    and generate + write 3D files of valid positions (= only flat faces
    visible).
-10. **`✗ ..0%`**: Convert a world full of pieces to a 3D obj file;
+10. **`✗ ..0%`**: Convert a world full of blocks to a 3D obj file;
 11. **`✗ 0%`**: Not sure if I'll ever do this. Use godotengine and read all
     the 3D files and show them: see #1 results for this:
     [Importing 3D scenes - Godot Docs](https://www.google.com/search?q=site%3Adocs.godotengine.org+%22importing+3d+scenes%22)

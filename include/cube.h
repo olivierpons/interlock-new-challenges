@@ -8,7 +8,7 @@
 #include "custom_types.h"
 
 typedef enum {
-    EMPTY='e', WALL='0', PLUG='+', HOLE='.', LINK='|',
+    F_EMPTY=' ', F_WALL='0', F_PLUG='+', F_HOLE='.', F_LINK='|',
 } Face;
 
 typedef struct Cube {
@@ -17,7 +17,7 @@ typedef struct Cube {
     Face s;
     Face w;
     Face f;  /* front */
-    Face b;  /* behind */
+    Face b;  /* back */
 } Cube;
 
 extern char *cubeToStr(Cube c);

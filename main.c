@@ -8,205 +8,41 @@
 #include <math.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
-#include "include/piece.h"
+#include "include/block.h"
 #include "include/obj_write.h"
 
 #define ARRAY_LEN(a) (sizeof(a) / sizeof(a[0]))
 
-const ubyte X = 10;
-const ubyte Y = 10;
-const ubyte Z = 10;
+const ubyte X = 20;
+const ubyte Y = 20;
+const ubyte Z = 20;
 
 // #define xyz(x, y, z) ((x) + ((y)*X) + ((z)*X*Y))
 
+const int NB_BLOCKS = 12;
+const int NB_BLOCK_ROTATIONS = 3;
+
 Cube* world = NULL;
-Piece **pieces = NULL;
+Block ***blocks = NULL;
 
-const Part refs[][2] ={
-    { /* 01 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                HOLE,  WALL,  LINK,  WALL,  PLUG,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  WALL,  WALL,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 02 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                WALL,  HOLE,  LINK,  WALL,  PLUG,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  WALL,  WALL,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 03 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                PLUG,  WALL,  LINK,  WALL,  HOLE,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  WALL,  WALL,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 04 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                PLUG,  WALL,  LINK,  WALL,  WALL,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  WALL,  HOLE,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 05 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                WALL,  WALL,  LINK,  WALL,  PLUG,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  HOLE,  WALL,  WALL,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 06 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                WALL,  WALL,  LINK,  WALL,  PLUG,  HOLE
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  WALL,  WALL,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 07 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                WALL,  WALL,  LINK,  WALL,  PLUG,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  WALL,  HOLE,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 08 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                WALL,  WALL,  LINK,  WALL,  PLUG,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  WALL,  WALL,  HOLE
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 09 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                PLUG,  WALL,  LINK,  WALL,  WALL,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  HOLE,  WALL,  WALL,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 10 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                WALL,  WALL,  LINK,  HOLE,  PLUG,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  WALL,  WALL,  WALL,
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 11 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                WALL,  WALL,  LINK,  WALL,  PLUG,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  WALL,  WALL,  HOLE,  WALL,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-    { /* 12 : array of 2 Parts: */
-        { /* Part 0 : */
-            { /* cube: */
-                WALL,  WALL,  LINK,  WALL,  PLUG,  WALL
-            },
-            true, 0, 0, 0, // isMain / offsets: x y z
-        },
-        { /* Part 1 : */
-            {  /* cube: */
-                LINK,  HOLE,  WALL,  WALL,  WALL,  WALL
-            },
-            false, 0, -1, 0, // isMain / offsets: x y z
-        },
-    },
-};
-
-const int NB_PIECES = 12;
-
-void piecesFree() {
-    if (pieces) {
-        for (int i = 0; i < NB_PIECES; ++i) {
-            free(pieces[i]);
+// region - Functions that free everything -
+void blocksFree() {
+    if (blocks) {
+        for (int i = 0; i < NB_BLOCKS; ++i) {
+            for (int j = 0; j < NB_BLOCK_ROTATIONS; ++j) {
+                if (blocks[i][j]) {
+                    free(blocks[i][j]);
+                }
+            }
+            free(blocks[i]);
         }
-        free(pieces);
-        pieces = NULL;
+        free(blocks);
+        blocks = NULL;
     } else {
         printf("? No blocks to free ?\n");
     }
 }
-void spacesFree() {
+void worldFree() {
     if (world) {
         free(world);
         world = NULL;
@@ -214,40 +50,115 @@ void spacesFree() {
         printf("? No world to free ?\n");
     }
 }
+// endregion
 
 int main() {
-    pieces = calloc(NB_PIECES, sizeof(Piece *));
-    world = malloc(sizeof(Cube) * X * Y * Z);
-    atexit(piecesFree);
-    atexit(spacesFree);
-    for (int i=0; i < NB_PIECES; ++i) {
-        /**
-         * pieces
-         *   |
-         *   + Piece
-         *   + ...
-         *   + Piece
-         *       |
-         *       +-- Part
-         *             |
-         *             +-- Cube +
-         *             +-- offset_(n e s w f b)
-         *       +-- Part
-         *             |
-         *             +-- Cube +
-         *             +-- offset_(n e s w f b)
-         *       +-- ...
-         *       +-- Part
-         */
-        int nbPiecesToCreate = ARRAY_LEN(refs[i]);
-        pieces[i] = pieceCreate(nbPiecesToCreate);
-        for (int j = 0; j < nbPiecesToCreate; ++j) {
-            pieces[i]->parts[j] = refs[i][j];
-            // char *desc =cubeToStr(pieces[i]->parts[j].c);
-            // printf("piece %d, part: %d: %s\n", i+1, j, desc);
-            // free(desc);
+    blocks = calloc(NB_BLOCKS, sizeof(Block **));
+    if (!blocks) {
+        exit(-1);
+    }
+    atexit(blocksFree);
+    for (uint i = 0; i < NB_BLOCKS; ++i) {
+        blocks[i] = calloc(NB_BLOCK_ROTATIONS, sizeof(Block *));
+        if (!blocks[i]) {
+            exit(-1);
         }
     }
+//    for (int j = 0; j < blocks[0][0]->total; ++j) {
+//        char *desc = cubeToStr(blocks[0][0]->parts[j].c);
+//        printf("block %d, part: %d: %s\n", 0, j, desc);
+//        free(desc);
+//    }
+    blocks[0][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_HOLE, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[1][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_WALL, F_HOLE, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[2][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_PLUG, F_WALL, F_LINK, F_WALL, F_HOLE, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[3][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_PLUG, F_WALL, F_LINK, F_WALL, F_WALL, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_WALL, F_HOLE, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[4][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_HOLE, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[5][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_HOLE, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[6][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_WALL, F_HOLE, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[7][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_HOLE, TO_INT(false, 0, -1, 0)
+    );
+    blocks[8][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_PLUG, F_WALL, F_LINK, F_WALL, F_WALL, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_HOLE, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[9][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_WALL, F_WALL, F_LINK, F_HOLE, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[10][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_WALL, F_WALL, F_HOLE, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+    blocks[11][0] = blockCreateWithParts(2,
+        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
+        F_LINK, F_HOLE, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
+    );
+
+    world = malloc(sizeof(Cube) * X * Y * Z);
+    atexit(worldFree);
+
+    /**
+     * blocks = Block *** = list of arrays of "blocks rotated"
+     *                    = allocation: total blocks
+     *    blocks[x] = (Block **) = array of "blocks rotated"
+     *                           = allocation: total of possible rotations
+     *    blocks[x][y] = (Block *) = array of blocks
+     *    blocks[x][y][z] = Block = block rotated (or not) = array of pieces
+     *         "list "
+     *         |
+     *         + ...
+     *         |
+     *         + Block
+     *         + ...
+     *         + Block
+     *             |
+     *             +-- Part
+     *                   |
+     *                   +-- Cube +
+     *                   +-- offset_(n e s w f b)
+     *             +-- Part
+     *                   |
+     *                   +-- Cube +
+     *                   +-- offset_(n e s w f b)
+     *             +-- ...
+     *             +-- Part
+     */
 
     char *dst_path = "../3d-obj/";
     char dstExpandedPath[PATH_MAX + 1];

@@ -9,8 +9,8 @@ add_executable(
         include/custom_types.h
         include/custom_types.c
         include/part.h
-        include/piece.h
-        include/piece.c
+        include/block.h
+        include/block.c
         include/cube.c
         include/obj_write.h
         include/obj_write.c include/3d.h)

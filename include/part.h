@@ -13,7 +13,7 @@ typedef struct Part {
     bool isMain;
     char offsetX; /* left  / right  */
     char offsetY; /* top   / bottom */
-    char offsetZ; /* front / behind */
+    char offsetZ; /* front / back   */
 } Part;
 
 #endif //INTERLOCK_PART_H
