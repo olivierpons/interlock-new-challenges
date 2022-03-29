@@ -34,7 +34,6 @@ Block *blockCreateWithParts(int total, ... )
         b->parts[i].offsetX = (char)va_arg(arguments, int);
         b->parts[i].offsetY = (char)va_arg(arguments, int);
         b->parts[i].offsetZ = (char)va_arg(arguments, int);
-
     }
     va_end (arguments);
     return b;

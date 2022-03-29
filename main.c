@@ -20,7 +20,7 @@ const ubyte Z = 20;
 // #define xyz(x, y, z) ((x) + ((y)*X) + ((z)*X*Y))
 
 const int NB_BLOCKS = 12;
-const int NB_BLOCK_ROTATIONS = 3;
+const int NB_BLOCK_ROTATIONS = 10;
 
 Cube* world = NULL;
 Block ***blocks = NULL;
@@ -52,6 +52,62 @@ void worldFree() {
 }
 // endregion
 
+void blockCreateAllRotations(Block ***b, ulong i) {
+    b[i][1] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0E(0), B0S(0), B0W(0), B0N(0), B0F(0), B0B(0), TO_INT(true, 0, 0, 0),
+        B1E(0), B1S(0), B1W(0), B1N(0), B1F(0), B1B(0), TO_INT(false, 0, 1, 0)
+    );
+    // roll: 2/3
+    b[i][2] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0S(0), B0W(0), B0N(0), B0E(0), B0F(0), B0B(0), TO_INT(true, 0, 0, 0),
+        B1S(0), B1W(0), B1N(0), B1E(0), B1F(0), B1B(0), TO_INT(false, -1, 0, 0)
+    );
+    // roll: 3/3
+    b[i][3] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0W(0), B0N(0), B0E(0), B0S(0), B0F(0), B0B(0), TO_INT(true, 0, 0, 0),
+        B1W(0), B1N(0), B1E(0), B1S(0), B1F(0), B1B(0), TO_INT(false, -1, 0, 0)
+    );
+    // pitch: 1/3
+    b[i][4] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0F(0), B0E(0), B0B(0), B0W(0), B0S(0), B0N(0), TO_INT(true, 0, 0, 0),
+        B1F(0), B1E(0), B1B(0), B1W(0), B1S(0), B1N(0), TO_INT(false, 0, 0, -1)
+    );
+    // pitch: 2/3
+    b[i][5] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0S(0), B0E(0), B0N(0), B0W(0), B0B(0), B0F(0), TO_INT(true, 0, 0, 0),
+        B1S(0), B1E(0), B1N(0), B1W(0), B1B(0), B1F(0), TO_INT(false, 0, 1, 0)
+    );
+    // pitch: 3/3
+    b[i][6] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0B(0), B0E(0), B0F(0), B0W(0), B0N(0), B0S(0), TO_INT(true, 0, 0, 0),
+        B1B(0), B1E(0), B1F(0), B1W(0), B1N(0), B1S(0), TO_INT(false, 0, 1, 0)
+    );
+    // yaw: 1/3
+    b[i][7] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0N(0), B0B(0), B0S(0), B0F(0), B0E(0), B0W(0), TO_INT(true, 0, 0, 0),
+        B1N(0), B1B(0), B1S(0), B1F(0), B1E(0), B1W(0), TO_INT(false, 0, 1, 0)
+    );
+    // yaw: 2/3
+    b[i][8] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0N(0), B0W(0), B0S(0), B0E(0), B0B(0), B0F(0), TO_INT(true, 0, 0, 0),
+        B1N(0), B1W(0), B1S(0), B1E(0), B1B(0), B1F(0), TO_INT(false, 0, 1, 0)
+    );
+    // yaw: 3/3
+    b[i][9] = blockCreateWithParts(2,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
+        B0N(0), B0F(0), B0S(0), B0B(0), B0W(0), B0E(0), TO_INT(true, 0, 0, 0),
+        B1N(0), B1F(0), B1S(0), B1B(0), B1W(0), B1E(0), TO_INT(false, 0, 1, 0)
+    );
+}
+
 int main() {
     blocks = calloc(NB_BLOCKS, sizeof(Block **));
     if (!blocks) {
@@ -75,60 +131,63 @@ int main() {
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[1][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_HOLE, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[2][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_HOLE, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[3][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_WALL, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_HOLE, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[4][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_HOLE, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[5][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_HOLE, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[6][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_HOLE, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[7][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_HOLE, TO_INT(false, 0, -1, 0)
     );
     blocks[8][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_WALL, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_HOLE, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[9][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_HOLE, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[10][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_HOLE, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     blocks[11][0] = blockCreateWithParts(2,
-        // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
+        // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_HOLE, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
+    for (ulong i = 0; i < 12; ++i) {
+        blockCreateAllRotations(blocks, i);
+    }
 
     world = malloc(sizeof(Cube) * X * Y * Z);
     atexit(worldFree);

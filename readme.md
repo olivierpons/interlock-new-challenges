@@ -132,8 +132,9 @@ Blender:
 
 ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h29.png)
 
-### 2022-03-27
-
+### 2022-03-29
+I forgot one step (that I've done tonight): pre-compute all possible rotations,
+using the "roll / pitch / yaw" principle.
 
 ### Next steps
 1. **`✓ 100%`**: see `2022-03-18` above:
