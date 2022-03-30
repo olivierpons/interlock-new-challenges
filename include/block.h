@@ -43,5 +43,8 @@ typedef struct Block {
 
 extern Block *blockCreate(int total);
 extern Block *blockCreateWithParts(int total, ... );
+extern void worldPutBlock(
+    Cube* world, Block *b, double long x, double long y, double long z
+);
 
 #endif //INTERLOCK_BLOCK_H

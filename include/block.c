@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include "block.h"
 #include "custom_types.h"
+#include "world.h"
 
 Block *blockCreate(int total) {
     Block *b = malloc(sizeof(*b) + sizeof(Part[total]));

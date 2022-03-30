@@ -2,15 +2,16 @@
 // © Olivier Pons / HQF Development - 16/03/2022.
 //
 
-#include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 #include "obj_write.h"
 #include "3d.h"
+#include "cube.h"
 
 void rotate(
     long double pitch, long double roll, long double yaw, Pos *m, uint nb
@@ -103,18 +104,18 @@ void objLinksWrite(FILE *fOut, Links *l) {
     S_W(fOut, s, "\n")
 }
 
-ulong closestPoint(Pos p, Pos *m, ulong nbPoints, ulong base) {
+ulong closestPoint(Pos p, Pos *pPos, ulong nbPoints, ulong base) {
     ulong result = base;  // default = first point = base + 0 = 0
 
-    long double x2 = (m[0].x-p.x); x2 = x2 * x2;
-    long double y2 = (m[0].y-p.y); y2 = y2 * y2;
-    long double z2 = (m[0].z-p.z); z2 = z2 * z2;
+    long double x2 = (pPos[0].x - p.x); x2 = x2 * x2;
+    long double y2 = (pPos[0].y - p.y); y2 = y2 * y2;
+    long double z2 = (pPos[0].z - p.z); z2 = z2 * z2;
     long double distance = sqrtl(x2+y2+z2);
     long double maxDistance = distance;
     for (ulong i = 1; i < nbPoints; ++i) {
-        x2 = (m[i].x-p.x); x2 = x2 * x2;
-        y2 = (m[i].y-p.y); y2 = y2 * y2;
-        z2 = (m[i].z-p.z); z2 = z2 * z2;
+        x2 = (pPos[i].x - p.x); x2 = x2 * x2;
+        y2 = (pPos[i].y - p.y); y2 = y2 * y2;
+        z2 = (pPos[i].z - p.z); z2 = z2 * z2;
         distance = sqrtl(x2+y2+z2);
         if (distance < maxDistance) {
             maxDistance = distance;
@@ -125,18 +126,18 @@ ulong closestPoint(Pos p, Pos *m, ulong nbPoints, ulong base) {
     return result;
 }
 
-void objWriteLinks(FILE *fOut, Links **q, ulong nb_links)
+void objWriteLinks(FILE *fOut, Links **pLinks, ulong nbLinks)
 {
     char s[255];
     // Loop on links and write them:
-    for (ulong i = 0; i < nb_links; ++i) {
-        if (q[i]) {
-            if (strlen(q[i]->comment) &&
-                strlen(q[i]->name) &&
-                strlen(q[i]->material)) {
-                L_W(fOut, s, q[i])
+    for (ulong i = 0; i < nbLinks; ++i) {
+        if (pLinks[i]) {
+            if (strlen(pLinks[i]->comment) &&
+                strlen(pLinks[i]->name) &&
+                strlen(pLinks[i]->material)) {
+                L_W(fOut, s, pLinks[i])
             }
-            objLinksWrite(fOut, q[i]);
+            objLinksWrite(fOut, pLinks[i]);
         } else {  /* should never happen */
             printf("?? WTF write? %lu\n", i);
         }
@@ -219,7 +220,6 @@ void objWriteFaceWithPlug(
     long double rotX, long double rotY, long double rotZ,
     bool goOutside)
 {
-    char s[255];
     ulong circlePoints = 10;
     long double radius = 0.20;
     const ulong NB_POINTS = (
@@ -229,10 +229,8 @@ void objWriteFaceWithPlug(
         + circlePoints // smaller circle inside the previous
     );
 
-    Pos *m = malloc(NB_POINTS * sizeof(Pos));
-    if (!m) { /* should never happen, I should handle this better... */
-        exit(-1);
-    }
+    Pos *m = calloc(NB_POINTS, sizeof(Pos));
+    assert(m);
 
     // region - Points computations -
     /* Hard-coded points of the squares (offsets done later, AFTER rotation): */
@@ -298,9 +296,7 @@ void objWriteFaceWithPlug(
     const ulong NB_LINKS = 6 + (circlePoints*2) + (circlePoints + 4);
     Links **q;
     q = calloc(NB_LINKS, sizeof(Links *));
-    if (!q) { /* should never happen, I should handle this better... */
-        exit(-1);
-    }
+    assert(q);
 
     // region - Links: square: 0..4 -
     ulong r = *pRef;
@@ -419,4 +415,48 @@ void objWriteFaceWithPlug(
     // endregion - Free memory -
 
     *pRef += (8 + (circlePoints*3));
+}
+
+void objWriteFace(
+    FILE *fOut, ulong *pRef, Face f,
+    long double x, long double y, long double z,
+    long double rotX, long double rotY, long double rotZ
+) {
+    switch (f) {
+        case F_WALL:
+//            printf(
+//                "objWriteSimpleFace: "
+//                "(%.2Lf, %.2Lf, %.2Lf) "
+//                "rot (%.2Lf, %.2Lf, %.2Lf)\n", x, y, z, rotX, rotY, rotZ
+//            );
+            objWriteSimpleFace(fOut, pRef, x, y, z, rotX, rotY, rotZ);
+            break;
+        case F_HOLE:
+        case F_PLUG:
+//            printf(
+//                "objWriteFaceWithPlug: "
+//                "(%.2Lf, %.2Lf, %.2Lf) "
+//                "rot (%.2Lf, %.2Lf, %.2Lf) (%i)\n",
+//                x, y, z, rotX, rotY, rotZ, f == F_PLUG
+//            );
+            objWriteFaceWithPlug(
+                fOut, pRef, x, y, z, rotX, rotY, rotZ, f == F_PLUG
+            );
+            break;
+        case F_LINK:
+        case F_EMPTY:
+        default:
+            break;
+    }
+}
+void objWriteCube(
+    FILE *fOut, ulong *pRef, Cube* c,
+    long double x, long double y, long double z)
+{
+    objWriteFace(fOut, pRef, c->f, x, y, z, 0.0, 0.0, 0); // front
+    objWriteFace(fOut, pRef, c->b, x, y, z, M_PI, 0, 0); // back
+    objWriteFace(fOut, pRef, c->s, x, y, z, 0.0, 0.0, M_PI / 2); // bottom
+    objWriteFace(fOut, pRef, c->n, x, y, z, 0.0, 0.0, -M_PI / 2); // top
+    objWriteFace(fOut, pRef, c->e, x, y, z, M_PI/2, 0, 0.0); // right
+    objWriteFace(fOut, pRef, c->w, x, y, z, -M_PI/2, 0, 0.0); // left
 }

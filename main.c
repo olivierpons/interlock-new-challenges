@@ -5,19 +5,11 @@
 #include <linux/limits.h>
 #endif
 #include <time.h>
-#include <math.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
 #include "include/block.h"
 #include "include/obj_write.h"
-
-#define ARRAY_LEN(a) (sizeof(a) / sizeof(a[0]))
-
-const ubyte X = 20;
-const ubyte Y = 20;
-const ubyte Z = 20;
-
-// #define xyz(x, y, z) ((x) + ((y)*X) + ((z)*X*Y))
+#include "include/world.h"
 
 const int NB_BLOCKS = 12;
 const int NB_BLOCK_ROTATIONS = 10;
@@ -53,59 +45,68 @@ void worldFree() {
 // endregion
 
 void blockCreateAllRotations(Block ***b, ulong i) {
+    // roll: 1/3
     b[i][1] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
-        B0E(0), B0S(0), B0W(0), B0N(0), B0F(0), B0B(0), TO_INT(true, 0, 0, 0),
-        B1E(0), B1S(0), B1W(0), B1N(0), B1F(0), B1B(0), TO_INT(false, 0, 1, 0)
+        B0E(i), B0S(i), B0W(i), B0N(i), B0F(i), B0B(i), TO_INT(true, 0, 0, 0),
+        B1E(i), B1S(i), B1W(i), B1N(i), B1F(i), B1B(i), TO_INT(false, 1, 0, 0)
     );
     // roll: 2/3
     b[i][2] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
-        B0S(0), B0W(0), B0N(0), B0E(0), B0F(0), B0B(0), TO_INT(true, 0, 0, 0),
-        B1S(0), B1W(0), B1N(0), B1E(0), B1F(0), B1B(0), TO_INT(false, -1, 0, 0)
+        B0S(i), B0W(i), B0N(i), B0E(i), B0F(i), B0B(i), TO_INT(true, 0, 0, 0),
+        B1S(i), B1W(i), B1N(i), B1E(i), B1F(i), B1B(i), TO_INT(false, 0, 1, 0)
     );
     // roll: 3/3
     b[i][3] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
-        B0W(0), B0N(0), B0E(0), B0S(0), B0F(0), B0B(0), TO_INT(true, 0, 0, 0),
-        B1W(0), B1N(0), B1E(0), B1S(0), B1F(0), B1B(0), TO_INT(false, -1, 0, 0)
+        B0W(i), B0N(i), B0E(i), B0S(i), B0F(i), B0B(i), TO_INT(true, 0, 0, 0),
+        B1W(i), B1N(i), B1E(i), B1S(i), B1F(i), B1B(i), TO_INT(false, -1, 0, 0)
     );
     // pitch: 1/3
     b[i][4] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
-        B0F(0), B0E(0), B0B(0), B0W(0), B0S(0), B0N(0), TO_INT(true, 0, 0, 0),
-        B1F(0), B1E(0), B1B(0), B1W(0), B1S(0), B1N(0), TO_INT(false, 0, 0, -1)
+        B0F(i), B0E(i), B0B(i), B0W(i), B0S(i), B0N(i), TO_INT(true, 0, 0, 0),
+        B1F(i), B1E(i), B1B(i), B1W(i), B1S(i), B1N(i), TO_INT(false, 0, 0, 1)
     );
     // pitch: 2/3
     b[i][5] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
-        B0S(0), B0E(0), B0N(0), B0W(0), B0B(0), B0F(0), TO_INT(true, 0, 0, 0),
-        B1S(0), B1E(0), B1N(0), B1W(0), B1B(0), B1F(0), TO_INT(false, 0, 1, 0)
+        B0S(i), B0E(i), B0N(i), B0W(i), B0B(i), B0F(i), TO_INT(true, 0, 0, 0),
+        B1S(i), B1E(i), B1N(i), B1W(i), B1B(i), B1F(i), TO_INT(false, 0, 1, 0)
     );
     // pitch: 3/3
     b[i][6] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0B(0), B0E(0), B0F(0), B0W(0), B0N(0), B0S(0), TO_INT(true, 0, 0, 0),
-        B1B(0), B1E(0), B1F(0), B1W(0), B1N(0), B1S(0), TO_INT(false, 0, 1, 0)
+        B1B(0), B1E(0), B1F(0), B1W(0), B1N(0), B1S(0), TO_INT(false, 0, 0, -1)
     );
     // yaw: 1/3
     b[i][7] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
-        B0N(0), B0B(0), B0S(0), B0F(0), B0E(0), B0W(0), TO_INT(true, 0, 0, 0),
-        B1N(0), B1B(0), B1S(0), B1F(0), B1E(0), B1W(0), TO_INT(false, 0, 1, 0)
+        B0N(i), B0B(i), B0S(i), B0F(i), B0E(i), B0W(i), TO_INT(true, 0, 0, 0),
+        B1N(i), B1B(i), B1S(i), B1F(i), B1E(i), B1W(i), TO_INT(false, 0, -1, 0)
     );
     // yaw: 2/3
     b[i][8] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
-        B0N(0), B0W(0), B0S(0), B0E(0), B0B(0), B0F(0), TO_INT(true, 0, 0, 0),
-        B1N(0), B1W(0), B1S(0), B1E(0), B1B(0), B1F(0), TO_INT(false, 0, 1, 0)
+        B0N(i), B0W(i), B0S(i), B0E(i), B0B(i), B0F(i), TO_INT(true, 0, 0, 0),
+        B1N(i), B1W(i), B1S(i), B1E(i), B1B(i), B1F(i), TO_INT(false, 0, -1, 0)
     );
     // yaw: 3/3
     b[i][9] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
-        B0N(0), B0F(0), B0S(0), B0B(0), B0W(0), B0E(0), TO_INT(true, 0, 0, 0),
-        B1N(0), B1F(0), B1S(0), B1B(0), B1W(0), B1E(0), TO_INT(false, 0, 1, 0)
+        B0N(i), B0F(i), B0S(i), B0B(i), B0W(i), B0E(i), TO_INT(true, 0, 0, 0),
+        B1N(i), B1F(i), B1S(i), B1B(i), B1W(i), B1E(i), TO_INT(false, 0, -1, 0)
     );
+}
+
+void printfCube(Block ***pBlock, ulong blockNo, ulong rotationNo)
+{
+    printf("block %d: part: %d: ", 1, 0);
+    cubeToStr(pBlock[blockNo][rotationNo]->parts[0].c);
+    printf("         part: %d: ", 1);
+    cubeToStr(pBlock[blockNo][rotationNo]->parts[1].c);
 }
 
 int main() {
@@ -120,11 +121,7 @@ int main() {
             exit(-1);
         }
     }
-//    for (int j = 0; j < blocks[0][0]->total; ++j) {
-//        char *desc = cubeToStr(blocks[0][0]->parts[j].c);
-//        printf("block %d, part: %d: %s\n", 0, j, desc);
-//        free(desc);
-//    }
+    // region - Blocks creation -
     blocks[0][0] = blockCreateWithParts(2,
         // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
         F_HOLE, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
@@ -188,9 +185,7 @@ int main() {
     for (ulong i = 0; i < 12; ++i) {
         blockCreateAllRotations(blocks, i);
     }
-
-    world = malloc(sizeof(Cube) * X * Y * Z);
-    atexit(worldFree);
+    // endregion
 
     /**
      * blocks = Block *** = list of arrays of "blocks rotated"
@@ -248,29 +243,48 @@ int main() {
             tm.tm_hour, tm.tm_min, tm.tm_sec)
         S_W(f_out, s, "mtllib model.mtl\n")
         S_W(f_out, s, "vn 0 0 -1\n")
-        long double x = 0.0;
-        long double y = 0.0;
-        long double z = 0.0;
-        ulong ref = 0;
-        objWriteFaceWithPlug(f_out, &ref, x, y, z, 0.0, 0.0, 0, true); // front
-        objWriteSimpleFace(f_out, &ref, x, y, z, M_PI, 0, 0);  // back
-        objWriteSimpleFace(f_out, &ref, x, y, z, 0.0, 0.0, M_PI / 2); // bottom
-        objWriteSimpleFace(f_out, &ref, x, y, z, 0.0, 0.0, -M_PI / 2);  // top
-//        objWriteSimpleFace(f_out, &ref, x, y, z, M_PI/2, 0, 0.0);  // right
-        objWriteSimpleFace(f_out, &ref, x, y, z, -M_PI/2, 0, 0.0); // left
+        ulong worldSize = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
+        printf("Allocating %lu cells.\n", worldSize);
+        world = calloc(worldSize, sizeof(Cube));
 
-        for (int k = 0; k < 5; ++k) {
-        for (int j = 0; j < 5; ++j) {
-        for (int i = 0; i < 5; ++i) {
-            objWriteFaceWithPlug(f_out, &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), 0.0, 0.0, 0, false); // front
-            objWriteSimpleFace(f_out,   &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), M_PI, 0, 0);  // back
-            objWriteSimpleFace(f_out,   &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), 0.0, 0.0, M_PI / 2); // bottom
-            objWriteSimpleFace(f_out,   &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), 0.0, 0.0, -M_PI / 2);  // top
-            objWriteSimpleFace(f_out,   &ref, x+(i*1.5), y+(j*1.5), z+(k*1.5), M_PI / 2, 0, 0.0);  // right
-//        objWriteFaceWithPlug(f_out,   &ref, 1 +x, y, z, -M_PI/2, 0, 0.0, true); // left
+        printfCube(blocks, 0, 0);
+        // manual test:
+        for (int i = 0; i < 12; ++i) {
+            worldPutBlock(world, blocks[i][0],  2, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][1],  4, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][2],  7, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][3], 10, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][4], 13, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][5], 16, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][6], 19, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][7], 22, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][8], 25, (i+1)*3, 2);
+            worldPutBlock(world, blocks[i][9], 29, (i+1)*3, 2);
         }
+
+        // Obj file output: loop to write all pieces:
+        ulong ref = 0;
+        for (int zIdx = 0; zIdx < WORLD_SIZE_Z; ++zIdx) {
+            for (int yIdx = 0; yIdx < WORLD_SIZE_Y; ++yIdx) {
+                for (int xIdx = 0; xIdx < WORLD_SIZE_X; ++xIdx) {
+                    long long a = XYZ(xIdx, yIdx, zIdx);
+                    Cube c = world[a];
+                    if (!c.b) {
+                        continue;
+                    }
+                    /*
+                    if (c.b) {
+                        printf("%lld (%d/%d/%d): ", a, xIdx, yIdx, zIdx);
+                        cubeToStr(c);
+                    } */
+                    objWriteCube(
+                        f_out, &ref, &c,
+                        (long double)xIdx, (long double)yIdx, (long double)zIdx
+                    );
+                }
+            }
         }
-        }
+        atexit(worldFree);
         fclose(f_out);
     } else {
         printf("? can't write to file -> aborting.\n");

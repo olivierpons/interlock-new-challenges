@@ -6,10 +6,7 @@
 #include <malloc.h>
 #include "cube.h"
 
-const char *CUBE_TO_STR = "(%c%c%c%c%c%c)";
-char *cubeToStr(Cube c) {
-    size_t needed = snprintf(NULL, 0, CUBE_TO_STR, c.n, c.e, c.s, c.w, c.f, c.b) + 1;
-    char *buffer = malloc(needed);
-    sprintf(buffer, CUBE_TO_STR, c.n, c.e, c.s, c.w, c.f, c.b);
-    return buffer;
+void cubeToStr(Cube c) {
+    char s[255];
+    printf("C (%c%c%c%c%c%c)\n", c.n, c.e, c.s, c.w, c.f, c.b);
 }

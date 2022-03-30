@@ -136,19 +136,32 @@ Blender:
 I forgot one step (that I've done tonight): pre-compute all possible rotations,
 using the "roll / pitch / yaw" principle.
 
+### 2022-03-30
+I reached those goals:
+- pre-compute all possible rotations,
+  using the "roll / pitch / yaw" principle
+- giving a whole world of "blocks" (only Cube's actually), generate a full 
+  3D `obj` file.
+
+So, I've generated all the blocks possible in all possible rotations, and here
+they are:
+
+  ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-30-21h53.png)
+
+ 
 ### Next steps
 1. **`✓ 100%`**: see `2022-03-18` above:
    Make basic library to write a Wavefront `obj` file,
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
 2. **`✓ 100%`**: Write one block, and display it on an
    [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
-3. **`✗ ..0%`**: Giving a whole world, generate a full 3D `obj` file;
-4. **`✗ ..0%`**: Put a block in the world;
+3. **`✗ 100%`**: Giving a whole world, generate a full 3D `obj` file;
+4. **`✗ 100%`**: Put a block in the world;
 5. **`✗ ..0%`**: Put a block in the world, and try to put another block next to 
    it (only *valid* positions);
 6. **`✗ ..0%`**: Algorithm that checks in the world if there are only "flat" 
    visible faces (= no sockets / holes visible);
-7. **`✗ ..0%`**: Pre-compute all rotations of a block (for the world);
+7. **`✗ 100%`**: Pre-compute all rotations of a block (for the world);
 8. **`✗ ..0%`**: For all possible rotations, of **2** blocks, 
    try to put them next to each other, and check if there are only "flat" 
    visible faces. If so, generate the corresponding 3D obj file.
@@ -156,7 +169,7 @@ using the "roll / pitch / yaw" principle.
    possible blocks, try to make *all combinations* of *all rotations*
    and generate + write 3D files of valid positions (= only flat faces
    visible).
-10. **`✗ ..0%`**: Convert a world full of blocks to a 3D obj file;
-11. **`✗ 0%`**: Not sure if I'll ever do this. Use godotengine and read all
-    the 3D files and show them: see #1 results for this:
+10. **`✗ 0%`**: Use godotengine and read all the 3D files and show them: 
+    see #1 results for this:
     [Importing 3D scenes - Godot Docs](https://www.google.com/search?q=site%3Adocs.godotengine.org+%22importing+3d+scenes%22)
+    Not sure if I'll ever do this!

@@ -20,5 +20,5 @@ typedef struct Cube {
     Face b;  /* back */
 } Cube;
 
-extern char *cubeToStr(Cube c);
+extern void cubeToStr(Cube c);
 #endif //INTERLOCK_CUBE_H
