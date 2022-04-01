@@ -21,4 +21,5 @@ typedef struct Cube {
 } Cube;
 
 extern void cubeToStr(Cube c);
+
 #endif //INTERLOCK_CUBE_H

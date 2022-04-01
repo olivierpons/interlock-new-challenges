@@ -16,6 +16,7 @@ const int NB_BLOCK_ROTATIONS = 10;
 
 Cube* world = NULL;
 Block ***blocks = NULL;
+Cube* availableCubes = NULL;
 
 // region - Functions that free everything -
 void blocksFree() {
@@ -40,6 +41,14 @@ void worldFree() {
         world = NULL;
     } else {
         printf("? No world to free ?\n");
+    }
+}
+void availableCubesFree() {
+    if (availableCubes) {
+        free(availableCubes);
+        availableCubes = NULL;
+    } else {
+        printf("? No availableCubes to free ?\n");
     }
 }
 // endregion
@@ -99,14 +108,6 @@ void blockCreateAllRotations(Block ***b, ulong i) {
         B0N(i), B0F(i), B0S(i), B0B(i), B0W(i), B0E(i), TO_INT(true, 0, 0, 0),
         B1N(i), B1F(i), B1S(i), B1B(i), B1W(i), B1E(i), TO_INT(false, 0, -1, 0)
     );
-}
-
-void printfCube(Block ***pBlock, ulong blockNo, ulong rotationNo)
-{
-    printf("block %d: part: %d: ", 1, 0);
-    cubeToStr(pBlock[blockNo][rotationNo]->parts[0].c);
-    printf("         part: %d: ", 1);
-    cubeToStr(pBlock[blockNo][rotationNo]->parts[1].c);
 }
 
 int main() {
@@ -247,20 +248,10 @@ int main() {
         printf("Allocating %lu cells.\n", worldSize);
         world = calloc(worldSize, sizeof(Cube));
 
-        printfCube(blocks, 0, 0);
-        // manual test:
-        for (int i = 0; i < 12; ++i) {
-            worldPutBlock(world, blocks[i][0],  2, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][1],  4, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][2],  7, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][3], 10, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][4], 13, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][5], 16, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][6], 19, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][7], 22, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][8], 25, (i+1)*3, 2);
-            worldPutBlock(world, blocks[i][9], 29, (i+1)*3, 2);
-        }
+        // worldPutAllBlocks(world, blocks);
+        worldPutBlock(world, blocks[0][0],  2, 3, 2);
+        availableCubes = computeAllFreeBlocks(world);
+        atexit(availableCubesFree);
 
         // Obj file output: loop to write all pieces:
         ulong ref = 0;

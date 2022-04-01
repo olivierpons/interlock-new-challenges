@@ -6,12 +6,12 @@
 #define INTERLOCK_CUSTOM_TYPES_H
 
 typedef unsigned char ubyte;
+typedef unsigned long ulong;
 
 extern char os_char_separator;
 extern char *os_str_separator;
 
 #ifdef _WIN32
-typedef unsigned long ulong;
 typedef unsigned int uint;
 #endif
 

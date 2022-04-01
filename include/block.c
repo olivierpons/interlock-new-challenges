@@ -4,10 +4,8 @@
 #include <malloc.h>
 #include <memory.h>
 #include <stdarg.h>
-#include <sys/types.h>
 #include "block.h"
 #include "custom_types.h"
-#include "world.h"
 
 Block *blockCreate(int total) {
     Block *b = malloc(sizeof(*b) + sizeof(Part[total]));
@@ -38,4 +36,12 @@ Block *blockCreateWithParts(int total, ... )
     }
     va_end (arguments);
     return b;
+}
+
+void printfCube(Block ***pBlock, ulong blockNo, ulong rotationNo)
+{
+    printf("block %d: part: %d: ", 1, 0);
+    cubeToStr(pBlock[blockNo][rotationNo]->parts[0].c);
+    printf("         part: %d: ", 1);
+    cubeToStr(pBlock[blockNo][rotationNo]->parts[1].c);
 }

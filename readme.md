@@ -155,13 +155,13 @@ they are:
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
 2. **`✓ 100%`**: Write one block, and display it on an
    [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
-3. **`✗ 100%`**: Giving a whole world, generate a full 3D `obj` file;
-4. **`✗ 100%`**: Put a block in the world;
+3. **`✓ 100%`**: Giving a whole world, generate a full 3D `obj` file;
+4. **`✓ 100%`**: Put a block in the world;
 5. **`✗ ..0%`**: Put a block in the world, and try to put another block next to 
    it (only *valid* positions);
 6. **`✗ ..0%`**: Algorithm that checks in the world if there are only "flat" 
    visible faces (= no sockets / holes visible);
-7. **`✗ 100%`**: Pre-compute all rotations of a block (for the world);
+7. **`✓ 100%`**: Pre-compute all rotations of a block (for the world);
 8. **`✗ ..0%`**: For all possible rotations, of **2** blocks, 
    try to put them next to each other, and check if there are only "flat" 
    visible faces. If so, generate the corresponding 3D obj file.
