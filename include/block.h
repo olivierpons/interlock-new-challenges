@@ -7,6 +7,8 @@
 
 #include "custom_types.h"
 #include "part.h"
+#include "pos.h"
+#include <stdint.h>
 
 /**
  * FAM: Flexible Array Members in a structure in C:
@@ -16,6 +18,13 @@ typedef struct Block {
     ubyte total;
     Part parts[];
 } Block;
+
+typedef struct BlockPosition {
+     uint8_t rotationNo;
+     Pos p;
+} BlockPosition;
+
+
 
 #define TO_INT(a,b,c,d) (int)(a), (int)(b), (int)(c), (int)(d)
 

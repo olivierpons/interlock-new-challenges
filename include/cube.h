@@ -19,16 +19,11 @@ typedef struct Cube {
     Face f;  /* front */
     Face b;  /* back */
 } Cube;
-
-typedef struct CubeList {
-    size_t used;
-    size_t size;
-    Cube *array;
-} CubeList;
+#define CUBE_NOT_EMPTY(cube) \
+    ((cube).n || (cube).e || (cube).s || (cube).w || (cube).f || (cube).b)
+#define CUBE_EMPTY(cube) \
+    (!((cube).n && (cube).e && (cube).s && (cube).w && (cube).f && (cube).b))
 
 extern void cubeToStr(Cube c);
-extern void initCubeList(CubeList *a, size_t initialSize);
-extern void appendCubeList(CubeList *a, Cube *cube);
-extern void freeCubeList(CubeList *a);
 
 #endif //INTERLOCK_CUBE_H

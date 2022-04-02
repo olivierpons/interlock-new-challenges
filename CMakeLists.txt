@@ -16,5 +16,7 @@ add_executable(
         include/obj_write.c
         include/3d.h
         include/world.h
-        include/world.c)
+        include/world.c
+        include/pos.h
+        include/pos.c)
 target_link_libraries(interlock m)

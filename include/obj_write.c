@@ -2,6 +2,11 @@
 // © Olivier Pons / HQF Development - 16/03/2022.
 //
 
+#ifdef __linux__
+#include <linux/limits.h>
+#endif
+
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -9,12 +14,14 @@
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
+
 #include "obj_write.h"
 #include "3d.h"
 #include "cube.h"
+#include "world.h"
 
 void rotate(
-    long double pitch, long double roll, long double yaw, Pos *m, uint nb
+    long double pitch, long double roll, long double yaw, Coord *m, uint nb
 )
 {
     long double cosA = cosl(yaw);
@@ -49,7 +56,7 @@ void rotate(
 }
 
 void calcRadiusPoints(
-    Pos *m, long double x, long double y, long double z,
+    Coord *m, long double x, long double y, long double z,
     long double radius, uint totalPoints)
 {
     long double step = 2*M_PI / totalPoints;
@@ -61,7 +68,7 @@ void calcRadiusPoints(
     }
 }
 
-void objWritePoints(FILE *fOut, Pos *m, ulong start, ulong end)
+void objWritePoints(FILE *fOut, Coord *m, ulong start, ulong end)
 {
     char s[255];
     for (ulong i = start; i <end; ++i) {
@@ -104,7 +111,7 @@ void objLinksWrite(FILE *fOut, Links *l) {
     S_W(fOut, s, "\n")
 }
 
-ulong closestPoint(Pos p, Pos *pPos, ulong nbPoints, ulong base) {
+ulong closestPoint(Coord p, Coord *pPos, ulong nbPoints, ulong base) {
     ulong result = base;  // default = first point = base + 0 = 0
 
     long double x2 = (pPos[0].x - p.x); x2 = x2 * x2;
@@ -149,7 +156,7 @@ void objWriteSimpleFace(
     long double rotX, long double rotY, long double rotZ)
 {
     const ulong NB_POINTS = 8; // inner + outer square
-    Pos *m = malloc(NB_POINTS * sizeof(Pos));
+    Coord *m = malloc(NB_POINTS * sizeof(Coord));
     if (!m) { /* should never happen, I should handle this better... */
         exit(-1);
     }
@@ -190,7 +197,7 @@ void objWriteSimpleFace(
     // All points and links are calculated -> rotate all:
     rotate(rotX, rotZ, rotY, m, NB_POINTS);
     /* After rotation, apply offsets to all points */
-    Pos *tmp = m;
+    Coord *tmp = m;
     for (ulong i = 0; i < NB_POINTS; ++i) {
         tmp->x += offX;
         tmp->y += offY;
@@ -220,7 +227,7 @@ void objWriteFaceWithPlug(
     long double rotX, long double rotY, long double rotZ,
     bool goOutside)
 {
-    ulong circlePoints = 10;
+    ulong circlePoints = 30;
     long double radius = 0.20;
     const ulong NB_POINTS = (
         8 // inner + outer square
@@ -229,12 +236,12 @@ void objWriteFaceWithPlug(
         + circlePoints // smaller circle inside the previous
     );
 
-    Pos *m = calloc(NB_POINTS, sizeof(Pos));
+    Coord *m = calloc(NB_POINTS, sizeof(Coord));
     assert(m);
 
     // region - Points computations -
     /* Hard-coded points of the squares (offsets done later, AFTER rotation): */
-    Pos *tmp = m + 8;
+    Coord *tmp = m + 8;
     if (goOutside) {
         /* Central square: */
         SET_XYZ(m, 0, -0.45, -0.45, +0.55)
@@ -356,9 +363,9 @@ void objWriteFaceWithPlug(
     ulong current = base;
     ulong oldClosest, firstClosest;
     for (ulong i = 0; i < circlePoints; ++i) {
-        Pos p1 = m[cStart + i];
-        Pos p2 = i != (circlePoints-1) ? m[cStart + i + 1] : m[cStart];
-        Pos p3;
+        Coord p1 = m[cStart + i];
+        Coord p2 = i != (circlePoints - 1) ? m[cStart + i + 1] : m[cStart];
+        Coord p3;
         p3.x = (p1.x + p2.x)/2;
         p3.y = (p1.y + p2.y)/2;
         p3.z = (p1.z + p2.z)/2;
@@ -460,3 +467,64 @@ void objWriteCube(
     objWriteFace(fOut, pRef, c->e, x, y, z, M_PI/2, 0, 0.0); // right
     objWriteFace(fOut, pRef, c->w, x, y, z, -M_PI/2, 0, 0.0); // left
 }
+
+void objWriteFullWorld(Cube* world)
+{
+    char *dst_path = "../3d-obj/";
+    char dstExpandedPath[PATH_MAX + 1];
+    char *ptr;
+#ifdef __linux__
+    ptr = realpath(dst_path, dstExpandedPath);
+#elif _WIN32
+    ptr = _fullpath(dstExpandedPath, dst_path, PATH_MAX);
+#else
+#error "OS not supported!"
+#endif
+    if (ptr[strlen(ptr)-1] != os_char_separator) {
+        strcat(ptr, os_str_separator);
+    }
+    strcat(ptr, "chest.obj");
+    printf("Destination file: %s\n", ptr);
+
+    FILE *f_out;
+    f_out = fopen(ptr, "w");
+    if (f_out) {
+        time_t t = time(NULL);
+        struct tm tm = *localtime(&t);
+        char s[255];
+        S_W(f_out, s,
+            "# © Olivier Pons / HQF Development - "
+            "%d-%02d-%02d %02d:%02d:%02d\n",
+            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+            tm.tm_hour, tm.tm_min, tm.tm_sec)
+        S_W(f_out, s, "mtllib model.mtl\n")
+        S_W(f_out, s, "vn 0 0 -1\n")
+
+        // Obj file output: loop to write all pieces:
+        ulong ref = 0;
+        for (int zIdx = 0; zIdx < WORLD_SIZE_Z; ++zIdx) {
+            for (int yIdx = 0; yIdx < WORLD_SIZE_Y; ++yIdx) {
+                for (int xIdx = 0; xIdx < WORLD_SIZE_X; ++xIdx) {
+                    long long a = XYZ(xIdx, yIdx, zIdx);
+                    Cube c = world[a];
+                    if (!c.b) {
+                        continue;
+                    }
+                    /*
+                    if (c.b) {
+                        printf("%lld (%d/%d/%d): ", a, xIdx, yIdx, zIdx);
+                        cubeToStr(c);
+                    } */
+                    objWriteCube(
+                        f_out, &ref, &c,
+                        (long double)xIdx, (long double)yIdx, (long double)zIdx
+                    );
+                }
+            }
+        }
+        fclose(f_out);
+    } else {
+        printf("? can't write to file -> aborting.\n");
+    }
+}
+

@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef __linux__
-#include <linux/limits.h>
-#endif
-#include <time.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
 #include "include/block.h"
@@ -16,7 +12,8 @@ const int NB_BLOCK_ROTATIONS = 10;
 
 Cube* world = NULL;
 Block ***blocks = NULL;
-CubeList *availableCubes = NULL;
+PosList *availablePositions = NULL;
+BlockPosition positions[12];
 
 // region - Functions that free everything -
 void blocksFree() {
@@ -43,13 +40,13 @@ void worldFree() {
         printf("? No world to free ?\n");
     }
 }
-void availableCubesFree() {
-    if (availableCubes) {
-        freeCubeList(availableCubes);
-        free(availableCubes);
-        availableCubes = NULL;
+void availablePositionsFree() {
+    if (availablePositions) {
+        freePosList(availablePositions);
+        free(availablePositions);
+        availablePositions = NULL;
     } else {
-        printf("? No availableCubes to free ?\n");
+        printf("? No availablePositions to free ?\n");
     }
 }
 // endregion
@@ -216,73 +213,28 @@ int main() {
      *             +-- Part
      */
 
-    char *dst_path = "../3d-obj/";
-    char dstExpandedPath[PATH_MAX + 1];
-    char *ptr;
-#ifdef __linux__
-    ptr = realpath(dst_path, dstExpandedPath);
-#elif _WIN32
-    ptr = _fullpath(dstExpandedPath, dst_path, PATH_MAX);
-#else
-#error "OS not supported!"
-#endif
-    if (ptr[strlen(ptr)-1] != os_char_separator) {
-        strcat(ptr, os_str_separator);
+    ulong worldSize = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
+    worldFree();
+    printf("Allocating %lu cells.\n", worldSize);
+    world = calloc(worldSize, sizeof(Cube));
+    atexit(worldFree);
+
+    // worldPutAllBlocks(world, blocks);
+    worldPutBlock(world, blocks[0][0], 2, 3, 2);
+    worldPutBlock(world, blocks[1][0], 4, 3, 2);
+    worldPutBlock(world, blocks[2][0], 6, 3, 2);
+    worldPutBlock(world, blocks[3][1], 8, 3, 2);
+    availablePositions = computePositionsToTry(world, 2);
+    for (ulong i = 0; i < availablePositions->used; ++i) {
+        printf("To try: (%hu, %hu, %hu)\n",
+            availablePositions->array[i].x,
+            availablePositions->array[i].y,
+            availablePositions->array[i].z
+        );
     }
-    strcat(ptr, "chest.obj");
-    printf("Destination file: %s\n", ptr);
+    atexit(availablePositionsFree);
 
-    FILE *f_out;
-    f_out = fopen(ptr, "w");
-    if (f_out) {
-        time_t t = time(NULL);
-        struct tm tm = *localtime(&t);
-        char s[255];
-        S_W(f_out, s,
-            "# © Olivier Pons / HQF Development - "
-            "%d-%02d-%02d %02d:%02d:%02d\n",
-            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-            tm.tm_hour, tm.tm_min, tm.tm_sec)
-        S_W(f_out, s, "mtllib model.mtl\n")
-        S_W(f_out, s, "vn 0 0 -1\n")
-        ulong worldSize = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
-        printf("Allocating %lu cells.\n", worldSize);
-        world = calloc(worldSize, sizeof(Cube));
+    objWriteFullWorld(world);
 
-        // worldPutAllBlocks(world, blocks);
-        worldPutBlock(world, blocks[0][0],  2, 3, 2);
-        availableCubes = computeCubesToTry(world);
-        for (ulong i = 0; i < availableCubes->used; ++i) {
-            cubeToStr(availableCubes->array[i]);
-        }
-        atexit(availableCubesFree);
-
-        // Obj file output: loop to write all pieces:
-        ulong ref = 0;
-        for (int zIdx = 0; zIdx < WORLD_SIZE_Z; ++zIdx) {
-            for (int yIdx = 0; yIdx < WORLD_SIZE_Y; ++yIdx) {
-                for (int xIdx = 0; xIdx < WORLD_SIZE_X; ++xIdx) {
-                    long long a = XYZ(xIdx, yIdx, zIdx);
-                    Cube c = world[a];
-                    if (!c.b) {
-                        continue;
-                    }
-                    /*
-                    if (c.b) {
-                        printf("%lld (%d/%d/%d): ", a, xIdx, yIdx, zIdx);
-                        cubeToStr(c);
-                    } */
-                    objWriteCube(
-                        f_out, &ref, &c,
-                        (long double)xIdx, (long double)yIdx, (long double)zIdx
-                    );
-                }
-            }
-        }
-        atexit(worldFree);
-        fclose(f_out);
-    } else {
-        printf("? can't write to file -> aborting.\n");
-    }
     return 0;
 }
