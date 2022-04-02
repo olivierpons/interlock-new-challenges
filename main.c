@@ -16,7 +16,7 @@ const int NB_BLOCK_ROTATIONS = 10;
 
 Cube* world = NULL;
 Block ***blocks = NULL;
-Cube* availableCubes = NULL;
+CubeList *availableCubes = NULL;
 
 // region - Functions that free everything -
 void blocksFree() {
@@ -45,6 +45,7 @@ void worldFree() {
 }
 void availableCubesFree() {
     if (availableCubes) {
+        freeCubeList(availableCubes);
         free(availableCubes);
         availableCubes = NULL;
     } else {
@@ -250,7 +251,10 @@ int main() {
 
         // worldPutAllBlocks(world, blocks);
         worldPutBlock(world, blocks[0][0],  2, 3, 2);
-        availableCubes = computeAllFreeBlocks(world);
+        availableCubes = computeCubesToTry(world);
+        for (ulong i = 0; i < availableCubes->used; ++i) {
+            cubeToStr(availableCubes->array[i]);
+        }
         atexit(availableCubesFree);
 
         // Obj file output: loop to write all pieces:

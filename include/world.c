@@ -5,13 +5,14 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "cube.h"
 #include "block.h"
 #include "world.h"
 
-const ulong WORLD_SIZE_X = 100;
-const ulong WORLD_SIZE_Y = 1400;
-const ulong WORLD_SIZE_Z = 100;
+const ulong WORLD_SIZE_X = 60;
+const ulong WORLD_SIZE_Y = 60;
+const ulong WORLD_SIZE_Z = 60;
 const ulong WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
 
 void worldPutBlock(
@@ -48,16 +49,18 @@ void worldPutAllBlocks(Cube* world, Block ***blocks) {
     }
 }
 
-Cube *computeAllFreeBlocks(Cube* world)
+CubeList *computeCubesToTry(Cube* world)
 {
-    Cube *list = NULL;
-    Cube *new_list = NULL;
+    CubeList *list = calloc(1, sizeof(CubeList));
+    if (!list) {
+        printf("Fatal: out of memory error.\n");
+        exit(-1);
+    }
+
+    initCubeList(list, 1);
     for (ulong i = 0; i < WORLD_SIZE; ++i) {
         if (world[i].n) {
-            new_list = realloc(list, sizeof(Cube));
-            if (new_list) {
-                list = new_list; // new allocation made
-            }
+            appendCubeList(list, &(world[i]));
         }
     }
     return list;

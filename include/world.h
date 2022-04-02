@@ -16,5 +16,5 @@ extern const ulong WORLD_SIZE;
     ((_x) + ((_y)*WORLD_SIZE_X) + ((_z)*WORLD_SIZE_X*WORLD_SIZE_Y))
 
 extern void worldPutAllBlocks(Cube* world, Block ***blocks);
-extern Cube *computeAllFreeBlocks(Cube* world);
+extern CubeList *computeCubesToTry(Cube* world);
 #endif //INTERLOCK_WORLD_H
