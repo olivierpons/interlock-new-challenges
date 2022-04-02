@@ -19,7 +19,7 @@ extern const ulong WORLD_SIZE;
 
 extern void worldPutAllBlocks(Cube* world, Block ***blocks);
 extern bool worldCanPutBlock(
-    Cube* world, Block *block, u_int16_t x, u_int16_t y, u_int16_t z
+    Cube* world, Block *block, uint16_t x, uint16_t y, uint16_t z
 );
 extern PosList *computePositionsToTry(Cube* world, ulong nbCubesInWorld);
 #endif //INTERLOCK_WORLD_H

@@ -66,7 +66,7 @@ bool CubeIsEmpty(Cube* world, ulong x, ulong y, ulong z)
 }
 
 bool worldCanPutBlock(
-    Cube* world, Block *block, u_int16_t x, u_int16_t y, u_int16_t z
+    Cube* world, Block *block, uint16_t x, uint16_t y, uint16_t z
 ) {
     for (int i = 0; i <block->total; ++i) {
         if (!CubeIsEmpty(world, x, y, z)) {

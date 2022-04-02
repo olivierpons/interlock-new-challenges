@@ -3,6 +3,7 @@
 //
 
 #include "pos.h"
+#include "custom_types.h"
 #include <malloc.h>
 #include <memory.h>
 #include <stdio.h>

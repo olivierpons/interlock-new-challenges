@@ -24,6 +24,11 @@ typedef struct Cube {
 #define CUBE_EMPTY(cube) \
     (!((cube).n && (cube).e && (cube).s && (cube).w && (cube).f && (cube).b))
 
+typedef struct Cubes {
+    ubyte total;
+    Cube cubes[];
+} Cubes;
+
 extern void cubeToStr(Cube c);
 
 #endif //INTERLOCK_CUBE_H
