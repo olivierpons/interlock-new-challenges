@@ -12,7 +12,7 @@ typedef struct Pointers {
 } Perms;
 
 extern Perms *allocPerms(int length);
-extern void freePerms(Perms **pointers);
+extern Perms *freePerms(Perms *permutations);
 extern bool nextPerm(Perms *p, int arrayLength);
 
 #endif //INTERLOCK_PERMS_H

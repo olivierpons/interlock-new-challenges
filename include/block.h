@@ -29,12 +29,12 @@ typedef struct BlockPosition {
 #define TO_INT(a,b,c,d) (int)(a), (int)(b), (int)(c), (int)(d)
 
 // 0 is *always* the reference:
-#define BN(piece, no_part) blocks[piece][0]->parts[no_part].c.n
-#define BE(piece, no_part) blocks[piece][0]->parts[no_part].c.e
-#define BS(piece, no_part) blocks[piece][0]->parts[no_part].c.s
-#define BW(piece, no_part) blocks[piece][0]->parts[no_part].c.w
-#define BF(piece, no_part) blocks[piece][0]->parts[no_part].c.f
-#define BB(piece, no_part) blocks[piece][0]->parts[no_part].c.b
+#define BN(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.n
+#define BE(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.e
+#define BS(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.s
+#define BW(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.w
+#define BF(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.f
+#define BB(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.b
 
 #define B0N(piece) BN(piece, 0)
 #define B0E(piece) BE(piece, 0)

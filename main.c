@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 #include <locale.h>
 #include "include/custom_types.h"
@@ -14,24 +13,25 @@ const int NB_BLOCKS = 12;
 const int NB_BLOCK_ROTATIONS = 10;
 
 Cube* world = NULL;
-Block ***blocks = NULL;
+Block ***blocksTemplate = NULL;
 PosList *positionsToTry = NULL;
 BlockPosition positions[12];
+Perms *blockIndexes = NULL;
 
 // region - Functions that free everything -
 void freeBlocks() {
-    if (blocks) {
+    if (blocksTemplate) {
         printf("Freeing blocs...\n");
         for (int i = 0; i < NB_BLOCKS; ++i) {
             for (int j = 0; j < NB_BLOCK_ROTATIONS; ++j) {
-                if (blocks[i][j]) {
-                    free(blocks[i][j]);
+                if (blocksTemplate[i][j]) {
+                    free(blocksTemplate[i][j]);
                 }
             }
-            free(blocks[i]);
+            free(blocksTemplate[i]);
         }
-        free(blocks);
-        blocks = NULL;
+        free(blocksTemplate);
+        blocksTemplate = NULL;
     }
 }
 void freeWorld() {
@@ -47,6 +47,12 @@ void freePositionsToTry() {
         freePosList(positionsToTry);
         free(positionsToTry);
         positionsToTry = NULL;
+    }
+}
+void freePermutations() {
+    if (blockIndexes) {
+        printf("Freeing blockIndexes...\n");
+        blockIndexes = freePerms(blockIndexes);
     }
 }
 // endregion
@@ -223,93 +229,84 @@ void blockCreateAllRotations(Block ***b, ulong i) {
 //}
 
 int main() {
-//    // example with 2 permutations on 12 elements:
-//    Perms * t = allocPerms(2);
-//    do {
-//        for (int i = 0; i < 2; ++i) {
-//            printf("%2d ", t->elements[i]+1);
-//        }
-//        printf("\n");
-//    } while (nextPerm(t, 12));
-//    freePerms(&t);
-
     atexit(freeBlocks);
     atexit(freeWorld);
     atexit(freePositionsToTry);
+    atexit(freePermutations);
 
-    blocks = calloc(NB_BLOCKS, sizeof(Block **));
-    if (!blocks) {
+    blocksTemplate = calloc(NB_BLOCKS, sizeof(Block **));
+    if (!blocksTemplate) {
         exit(-1);
     }
     for (uint i = 0; i < NB_BLOCKS; ++i) {
-        blocks[i] = calloc(NB_BLOCK_ROTATIONS, sizeof(Block *));
-        if (!blocks[i]) {
+        blocksTemplate[i] = calloc(NB_BLOCK_ROTATIONS, sizeof(Block *));
+        if (!blocksTemplate[i]) {
             exit(-1);
         }
     }
     // region - Blocks creation -
-    blocks[0][0] = blockCreateWithParts(2,
+    blocksTemplate[0][0] = blockCreateWithParts(2,
         // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
         F_HOLE, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[1][0] = blockCreateWithParts(2,
+    blocksTemplate[1][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_HOLE, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[2][0] = blockCreateWithParts(2,
+    blocksTemplate[2][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_HOLE, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[3][0] = blockCreateWithParts(2,
+    blocksTemplate[3][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_WALL, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_HOLE, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[4][0] = blockCreateWithParts(2,
+    blocksTemplate[4][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_HOLE, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[5][0] = blockCreateWithParts(2,
+    blocksTemplate[5][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_HOLE, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[6][0] = blockCreateWithParts(2,
+    blocksTemplate[6][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_HOLE, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[7][0] = blockCreateWithParts(2,
+    blocksTemplate[7][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_HOLE, TO_INT(false, 0, -1, 0)
     );
-    blocks[8][0] = blockCreateWithParts(2,
+    blocksTemplate[8][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_WALL, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_HOLE, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[9][0] = blockCreateWithParts(2,
+    blocksTemplate[9][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_HOLE, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[10][0] = blockCreateWithParts(2,
+    blocksTemplate[10][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_HOLE, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocks[11][0] = blockCreateWithParts(2,
+    blocksTemplate[11][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_HOLE, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     for (ulong i = 0; i < 12; ++i) {
-        blockCreateAllRotations(blocks, i);
+        blockCreateAllRotations(blocksTemplate, i);
     }
     // endregion
 
@@ -347,6 +344,57 @@ int main() {
     start = clock();
 
     for (uint8_t totalBlocks = 2; totalBlocks < 12; ++totalBlocks) {
+        freePermutations();
+        blockIndexes = allocPerms(totalBlocks);
+
+        /**
+         * combinations vs permutations!
+         *
+         * Sample with 2 elements: blockIndexes 0, 1
+         *
+         * 0 = 12 rotations
+         * 1 = 12 rotations
+         * 2 = 12 rotations
+         *
+         * try each rotations: 0, 1, 2  (0,1,2,3,4,5,6,7,8,9)
+         *      example (in middle of loop):
+         *      piece 0, r. 0
+         *      piece 1, r. 6
+         *      piece 2, r. 8
+         *
+         *      -> compute all combinations, example:
+         *            example combination 0: (0, 0) - (1, 6) - (2, 8)
+         *            example combination 1: (0, 0) - (2, 8) - (1, 6)
+         *            example combination 2: (1, 6) - (0, 0) - (2, 8)
+         *            example combination 3: (1, 6) - (2, 8) - (0, 0)
+         *            example combination 4: (2, 8) - (1, 6) - (0, 0)
+         *            example combination 5: (2, 8) - (0, 0) - (1, 6)
+         *
+         *            for each combinations, try to put the blocks:
+         *
+         *                example for combination 0:
+         *                for (i = 0 .. nb blocks-1)
+         *                   -> put piece[ combination[ i ] ]
+         *                   -> computePositionsToTry(..)
+         *                      for each (positions found)
+         *                          ok = true;
+         *                          for (j = i+1 .. nb blocks-1)
+         *                             if put a block = ok
+         *                                computePositionsToTry(..)
+         *                             else
+         *                                 ok = false;
+         *                                 break loop
+         *                          if ok:
+         *                              if "all flat":
+         *                                  found a solution -> save world!
+         */
+        do {
+            for (int i = 0; i < totalBlocks; ++i) {
+                printf("%2d ", blockIndexes->elements[i]);
+            }
+            printf("\n");
+        } while (nextPerm(blockIndexes, 12));
+
         int pos;
         for (;;) {
             pos = 0;
@@ -371,7 +419,7 @@ int main() {
                 setlocale(LC_NUMERIC, "en_US.utf-8");
                 printf("%'lu, cpu_time_used=%'f ", count, cpu_time_used);
                 printf("Done !\n");
-                exit(0);
+                break;
             }
 
             /**
@@ -382,13 +430,16 @@ int main() {
              */
             count++;
         }
+
         freeWorld();
         printf("Allocating %lu cells.\n", worldSize);
         world = calloc(worldSize, sizeof(Cube));
 
-        // worldPutAllBlocks(world, blocks);
+        // worldPutAllBlocks(world, blocksTemplate);
         for (int currBlock = 0; currBlock < totalBlocks; ++currBlock) {
-            worldPutBlock(world, blocks[currBlock][0], 2+(currBlock*3), 3, 2);
+            worldPutBlock(
+                world, blocksTemplate[currBlock][0], 2 + (currBlock * 3), 3, 2
+            );
         }
         freePositionsToTry();
         positionsToTry = computePositionsToTry(world, totalBlocks*2);
@@ -401,6 +452,7 @@ int main() {
         }
 
         objWriteFullWorld(world);
+        break;
     }
     return 0;
 }

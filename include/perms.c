@@ -54,16 +54,15 @@ Perms *allocPerms(int length) {
     p->current = length-1;
     return p;
 }
-void freePerms(Perms **pointers) {
-    Perms *p = *pointers;
-    if (p) {
-        free(p->elements);
-        p->elements = NULL;
-        p->current = 0;
-        p->length = 0;
+Perms *freePerms(Perms *permutations) {
+    if (permutations) {
+        free(permutations->elements);
+        permutations->elements = NULL;
+        permutations->current = 0;
+        permutations->length = 0;
     }
-    free(p);
-    p = NULL;
+    free(permutations);
+    return NULL;
 }
 
 bool nextPerm(Perms *p, int arrayLength) {
