@@ -10,9 +10,9 @@
 #include "world.h"
 #include "pos.h"
 
-const ulong WORLD_SIZE_X = 30;
-const ulong WORLD_SIZE_Y = 30;
-const ulong WORLD_SIZE_Z = 30;
+const ulong WORLD_SIZE_X = 60;
+const ulong WORLD_SIZE_Y = 60;
+const ulong WORLD_SIZE_Z = 60;
 const ulong WORLD_SIZE_XY = WORLD_SIZE_X * WORLD_SIZE_Y;
 const ulong WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
 
@@ -117,6 +117,7 @@ PosList *computePositionsToTry(Cube* world, ulong nbCubesInWorld)
             }
         }
     }
-    printf("Fatal: didn't find all the cubes.\n");
+    printf("Fatal: didn't find all the cubes: expected %lu, found: %lu.\n",
+        nbCubesInWorld, found);
     exit(-1);
 }

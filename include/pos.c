@@ -17,6 +17,10 @@ void initPosList(PosList *a, size_t initialSize) {
 
 void appendPosListOnce(PosList *a, uint16_t x, uint16_t y, uint16_t z) {
     for (ulong i = 0; i <a->used; ++i) {
+//        printf("(%hu, %hu, %hu): Trying... (%hu, %hu, %hu)\n",
+//            x, y, z,
+//            a->elements[i].x, a->elements[i].y, a->elements[i].z
+//        );
         if (
             (a->array[i].x == x) &&
             (a->array[i].y == y) &&

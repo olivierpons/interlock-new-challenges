@@ -1,23 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <locale.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
 #include "include/block.h"
 #include "include/obj_write.h"
 #include "include/world.h"
+#include "include/perms.h"
 
 const int NB_BLOCKS = 12;
 const int NB_BLOCK_ROTATIONS = 10;
 
 Cube* world = NULL;
 Block ***blocks = NULL;
-PosList *availablePositions = NULL;
+PosList *positionsToTry = NULL;
 BlockPosition positions[12];
 
 // region - Functions that free everything -
-void blocksFree() {
+void freeBlocks() {
     if (blocks) {
+        printf("Freeing blocs...\n");
         for (int i = 0; i < NB_BLOCKS; ++i) {
             for (int j = 0; j < NB_BLOCK_ROTATIONS; ++j) {
                 if (blocks[i][j]) {
@@ -28,25 +32,21 @@ void blocksFree() {
         }
         free(blocks);
         blocks = NULL;
-    } else {
-        printf("? No blocks to free ?\n");
     }
 }
-void worldFree() {
+void freeWorld() {
     if (world) {
+        printf("Freeing world...\n");
         free(world);
         world = NULL;
-    } else {
-        printf("? No world to free ?\n");
     }
 }
-void availablePositionsFree() {
-    if (availablePositions) {
-        freePosList(availablePositions);
-        free(availablePositions);
-        availablePositions = NULL;
-    } else {
-        printf("? No availablePositions to free ?\n");
+void freePositionsToTry() {
+    if (positionsToTry) {
+        printf("Freeing positionsToTry...\n");
+        freePosList(positionsToTry);
+        free(positionsToTry);
+        positionsToTry = NULL;
     }
 }
 // endregion
@@ -108,12 +108,139 @@ void blockCreateAllRotations(Block ***b, ulong i) {
     );
 }
 
+
+//void swap(int *a, int i, int j)
+//{
+//    int temp = a[i];
+//    a[i] = a[j];
+//    a[j] = temp;
+//}
+//
+//bool LEFT_TO_RIGHT = true;
+//bool RIGHT_TO_LEFT = false;
+//
+//// Functions for finding the position of the largest mobile integer in a[].
+//int searchArr(const int a[], int n, int mobile)
+//{
+//    for (int i = 0; i < n; i++)
+//        if (a[i] == mobile)
+//            return i + 1;
+//    return -1;
+//}
+//
+//// To carry out step 1 of the algorithm i.e. to find the largest mobile integer.
+//int getMobile(const int a[], const bool dir[], int n)
+//{
+//    int mobile_prev = 0, mobile = 0;
+//    for (int i = 0; i < n; i++) {
+//        // direction 0 represents RIGHT TO LEFT.
+//        if (dir[a[i]-1] == RIGHT_TO_LEFT && i != 0) {
+//            if (a[i] > a[i-1] && a[i] > mobile_prev) {
+//                mobile = a[i];
+//                mobile_prev = mobile;
+//            }
+//        }
+//        // direction 1 represents LEFT TO RIGHT.
+//        if (dir[a[i]-1] == LEFT_TO_RIGHT && i != n-1) {
+//            if (a[i] > a[i+1] && a[i] > mobile_prev) {
+//                mobile = a[i];
+//                mobile_prev = mobile;
+//            }
+//        }
+//    }
+//    return (mobile == 0 && mobile_prev == 0) ? 0 : mobile;
+//}
+//
+//// Prints a single permutation
+//int printOnePerm(int a[], bool dir[], int n)
+//{
+//    int mobile = getMobile(a, dir, n);
+//    int pos = searchArr(a, n, mobile);
+//
+//    // swapping the elements according to the direction i.e. dir[].
+//    if (dir[a[pos - 1] - 1] ==  RIGHT_TO_LEFT) {
+//        swap(a, pos - 1, pos - 2);
+//    } else if (dir[a[pos - 1] - 1] == LEFT_TO_RIGHT) {
+//        swap(a, pos, pos - 1);
+//    }
+//
+//    // changing the directions for elements
+//    // greater than the largest mobile integer.
+//    for (int i = 0; i < n; i++) {
+//        if (a[i] > mobile) {
+//            if (dir[a[i] - 1] == LEFT_TO_RIGHT) {
+//                dir[a[i] - 1] = RIGHT_TO_LEFT;
+//            } else if (dir[a[i] - 1] == RIGHT_TO_LEFT) {
+//                dir[a[i] - 1] = LEFT_TO_RIGHT;
+//            }
+//        }
+//    }
+//
+//    for (int i = 0; i < n; i++) {
+//        printf("%d ", a[i]);
+//    }
+//    printf("\n");
+//}
+//
+//// To end the algorithm for efficiency it ends
+//// at the factorial of n because number of
+//// permutations possible is just n!.
+//int fact(int n)
+//{
+//    int res = 1;
+//    for (int i = 1; i <= n; i++)
+//        res = res * i;
+//    return res;
+//}
+//
+//// This function mainly calls printOnePerm()
+//// one by one to print all permutations.
+//void printPermutation(int n)
+//{
+//    // To store current permutation
+//    int a[n];
+//
+//    // To store current directions
+//    bool dir[n];
+//
+//    // storing the elements from 1 to n and
+//    // printing first permutation.
+//    for (int i = 0; i < n; i++) {
+//        a[i] = i + 1;
+//        printf("%d ", a[i]);
+//    }
+//    printf("\n");
+//
+//    // initially all directions are set to RIGHT TO LEFT i.e. 0.
+//    for (int i = 0; i < n; i++) {
+//        dir[i] = RIGHT_TO_LEFT;
+//    }
+//
+//    // for generating permutations in the order.
+//    for (int i = 1; i < fact(n); i++) {
+//        printOnePerm(a, dir, n);
+//    }
+//}
+
 int main() {
+//    // example with 2 permutations on 12 elements:
+//    Perms * t = allocPerms(2);
+//    do {
+//        for (int i = 0; i < 2; ++i) {
+//            printf("%2d ", t->elements[i]+1);
+//        }
+//        printf("\n");
+//    } while (nextPerm(t, 12));
+//    freePerms(&t);
+
+    atexit(freeBlocks);
+    atexit(freeWorld);
+    atexit(freePositionsToTry);
+
     blocks = calloc(NB_BLOCKS, sizeof(Block **));
     if (!blocks) {
         exit(-1);
     }
-    atexit(blocksFree);
     for (uint i = 0; i < NB_BLOCKS; ++i) {
         blocks[i] = calloc(NB_BLOCK_ROTATIONS, sizeof(Block *));
         if (!blocks[i]) {
@@ -189,10 +316,10 @@ int main() {
     /**
      * blocks = Block *** = list of arrays of "blocks rotated"
      *                    = allocation: total blocks
-     *    blocks[x] = (Block **) = array of "blocks rotated"
+     *    blocks[x] = (Block **) = elements of "blocks rotated"
      *                           = allocation: total of possible rotations
-     *    blocks[x][y] = (Block *) = array of blocks
-     *    blocks[x][y][z] = Block = block rotated (or not) = array of pieces
+     *    blocks[x][y] = (Block *) = elements of blocks
+     *    blocks[x][y][z] = Block = block rotated (or not) = elements of pieces
      *         "list "
      *         |
      *         + ...
@@ -214,27 +341,66 @@ int main() {
      */
 
     ulong worldSize = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
-    worldFree();
-    printf("Allocating %lu cells.\n", worldSize);
-    world = calloc(worldSize, sizeof(Cube));
-    atexit(worldFree);
+    clock_t start, end;
+    double cpu_time_used;
+    ulong count = 0;
+    start = clock();
 
-    // worldPutAllBlocks(world, blocks);
-    worldPutBlock(world, blocks[0][0], 2, 3, 2);
-    worldPutBlock(world, blocks[1][0], 4, 3, 2);
-    worldPutBlock(world, blocks[2][0], 6, 3, 2);
-    worldPutBlock(world, blocks[3][1], 8, 3, 2);
-    availablePositions = computePositionsToTry(world, 2);
-    for (ulong i = 0; i < availablePositions->used; ++i) {
-        printf("To try: (%hu, %hu, %hu)\n",
-            availablePositions->array[i].x,
-            availablePositions->array[i].y,
-            availablePositions->array[i].z
-        );
+    for (uint8_t totalBlocks = 2; totalBlocks < 12; ++totalBlocks) {
+        int pos;
+        for (;;) {
+            pos = 0;
+            /* - Trying all combinations with all current rotations - */
+            printf("%2d: ", totalBlocks);
+            for (int i = 0; i <totalBlocks; ++i) {
+                printf("%2d ", positions[i].rotationNo);
+            }
+            printf("\n");
+
+            pos = totalBlocks - 1;
+            while (++positions[pos].rotationNo == 12) {
+                positions[pos].rotationNo = 0;
+                pos--;
+                if (pos < 0) {
+                    break;
+                }
+            }
+            if (pos < 0) {
+                end = clock();
+                cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+                setlocale(LC_NUMERIC, "en_US.utf-8");
+                printf("%'lu, cpu_time_used=%'f ", count, cpu_time_used);
+                printf("Done !\n");
+                exit(0);
+            }
+
+            /**
+             * -> With all permutations
+             * We have:
+             * - the number of blocks: totalBlocks
+             * - all "current" rotations: positions[]: 0 -> totalBlocks-1
+             */
+            count++;
+        }
+        freeWorld();
+        printf("Allocating %lu cells.\n", worldSize);
+        world = calloc(worldSize, sizeof(Cube));
+
+        // worldPutAllBlocks(world, blocks);
+        for (int currBlock = 0; currBlock < totalBlocks; ++currBlock) {
+            worldPutBlock(world, blocks[currBlock][0], 2+(currBlock*3), 3, 2);
+        }
+        freePositionsToTry();
+        positionsToTry = computePositionsToTry(world, totalBlocks*2);
+        for (ulong i = 0; i < positionsToTry->used; ++i) {
+            printf("To try: (%hu, %hu, %hu)\n",
+                positionsToTry->array[i].x,
+                positionsToTry->array[i].y,
+                positionsToTry->array[i].z
+            );
+        }
+
+        objWriteFullWorld(world);
     }
-    atexit(availablePositionsFree);
-
-    objWriteFullWorld(world);
-
     return 0;
 }

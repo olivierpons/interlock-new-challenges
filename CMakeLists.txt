@@ -18,5 +18,5 @@ add_executable(
         include/world.h
         include/world.c
         include/pos.h
-        include/pos.c)
+        include/pos.c include/perms.c include/perms.h)
 target_link_libraries(interlock m)

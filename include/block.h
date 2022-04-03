@@ -12,7 +12,7 @@
 
 /**
  * FAM: Flexible Array Members in a structure in C:
- * https://www.geeksforgeeks.org/flexible-array-members-structure-c/
+ * https://www.geeksforgeeks.org/flexible-elements-members-structure-c/
  */
 typedef struct Block {
     ubyte total;
