@@ -2,20 +2,22 @@
 #include <stdlib.h>
 #include <time.h>
 #include <locale.h>
+#include <string.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
 #include "include/block.h"
 #include "include/obj_write.h"
 #include "include/world.h"
 #include "include/perms.h"
+#include "include/debug.h"
 
-const int NB_BLOCKS = 12;
-const int NB_BLOCK_ROTATIONS = 10;
+#define NB_BLOCKS 12
+#define NB_BLOCK_ROTATIONS 10
 
 Cube* world = NULL;
 Block ***blocksTemplate = NULL;
 PosList *positionsToTry = NULL;
-BlockPosition positions[12];
+BlockInformation blockInfos[NB_BLOCKS];
 Perms *blockIndexes = NULL;
 
 // region - Functions that free everything -
@@ -49,7 +51,7 @@ void freePositionsToTry() {
         positionsToTry = NULL;
     }
 }
-void freePermutations() {
+void freeBlockIndexes() {
     if (blockIndexes) {
         printf("Freeing blockIndexes...\n");
         blockIndexes = freePerms(blockIndexes);
@@ -232,7 +234,7 @@ int main() {
     atexit(freeBlocks);
     atexit(freeWorld);
     atexit(freePositionsToTry);
-    atexit(freePermutations);
+    atexit(freeBlockIndexes);
 
     blocksTemplate = calloc(NB_BLOCKS, sizeof(Block **));
     if (!blocksTemplate) {
@@ -311,41 +313,47 @@ int main() {
     // endregion
 
     /**
-     * blocks = Block *** = list of arrays of "blocks rotated"
-     *                    = allocation: total blocks
-     *    blocks[x] = (Block **) = elements of "blocks rotated"
-     *                           = allocation: total of possible rotations
-     *    blocks[x][y] = (Block *) = elements of blocks
-     *    blocks[x][y][z] = Block = block rotated (or not) = elements of pieces
-     *         "list "
-     *         |
-     *         + ...
-     *         |
-     *         + Block
-     *         + ...
-     *         + Block
-     *             |
-     *             +-- Part
-     *                   |
-     *                   +-- Cube +
-     *                   +-- offset_(n e s w f b)
-     *             +-- Part
-     *                   |
-     *                   +-- Cube +
-     *                   +-- offset_(n e s w f b)
-     *             +-- ...
-     *             +-- Part
+     * blockInfos = Block *** = list of arrays of "blockInfos rotated"
+     *                        = allocation: total blockInfos
+     * blockInfos[x] = (Block **) = elements of "blockInfos rotated"
+     *                            = allocation: total of possible rotations
+     * blockInfos[x][y] = (Block *) = elements of blockInfos
+     * blockInfos[x][y][z] = Block = block rotated (or not) = elements of pieces
+     *
+     *      "list "
+     *      |
+     *      + ...
+     *      |
+     *      + Block
+     *      + ...
+     *      + Block
+     *          |
+     *          +-- Part
+     *                |
+     *                +-- Cube +
+     *                +-- offset_(n e s w f b)
+     *          +-- Part
+     *                |
+     *                +-- Cube +
+     *                +-- offset_(n e s w f b)
+     *          +-- ...
+     *          +-- Part
      */
 
-    ulong worldSize = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
+    const ulong worldSize = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
+    const ulong worldCenterX = WORLD_SIZE_X / 2;
+    const ulong worldCenterY = WORLD_SIZE_Y / 2;
+    const ulong worldCenterZ = WORLD_SIZE_Z / 2;
     clock_t start, end;
     double cpu_time_used;
     ulong count = 0;
     start = clock();
 
+    // creating the world:
+    printf("Creating world: allocating %lu cubes.\n", worldSize);
+    world = malloc(worldSize * sizeof(Cube));
+
     for (uint8_t totalBlocks = 2; totalBlocks < 12; ++totalBlocks) {
-        freePermutations();
-        blockIndexes = allocPerms(totalBlocks);
 
         /**
          * combinations vs permutations!
@@ -356,7 +364,7 @@ int main() {
          * 1 = 12 rotations
          * 2 = 12 rotations
          *
-         * try each rotations: 0, 1, 2  (0,1,2,3,4,5,6,7,8,9)
+         * try each rotations: 0, 1, 2           (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
          *      example (in middle of loop):
          *      piece 0, r. 0
          *      piece 1, r. 6
@@ -370,15 +378,15 @@ int main() {
          *            example combination 4: (2, 8) - (1, 6) - (0, 0)
          *            example combination 5: (2, 8) - (0, 0) - (1, 6)
          *
-         *            for each combinations, try to put the blocks:
+         *            for each combinations, try to put the blockInfos:
          *
          *                example for combination 0:
-         *                for (i = 0 .. nb blocks-1)
+         *                for (i = 0 .. nb blockInfos-1)
          *                   -> put piece[ combination[ i ] ]
          *                   -> computePositionsToTry(..)
-         *                      for each (positions found)
+         *                      for each (blockInfos found)
          *                          ok = true;
-         *                          for (j = i+1 .. nb blocks-1)
+         *                          for (j = i+1 .. nb blockInfos-1)
          *                             if put a block = ok
          *                                computePositionsToTry(..)
          *                             else
@@ -388,71 +396,104 @@ int main() {
          *                              if "all flat":
          *                                  found a solution -> save world!
          */
+        printf("TotalBlocks: %2d: \n", totalBlocks);
+        // blockIndexes = for "picking" blocksTemplate:
+        blockIndexes = allocPerms(totalBlocks);
+        // Init all blocks we're going to work with:
+        for (int i = 0; i <totalBlocks; ++i) {
+            /**
+             * blocksTemplate       = ***Block = list of "**"
+             * blocksTemplate[x]    = **Block  = list of "*"
+             * blocksTemplate[x][y] = *Block   = list of Block
+             *                                   !! -> here, 1 block allocated:
+             *                                 Block = { total + list of Parts }
+             */
+            blockInfos[i].block = blocksTemplate[blockIndexes->elements[i]];
+        }
         do {
-            for (int i = 0; i < totalBlocks; ++i) {
-                printf("%2d ", blockIndexes->elements[i]);
-            }
-            printf("\n");
-        } while (nextPerm(blockIndexes, 12));
+            // do- while on all possible rotations:
+            int pos;
+            for (;;) {
+                pos = 0;
 
-        int pos;
-        for (;;) {
-            pos = 0;
-            /* - Trying all combinations with all current rotations - */
-            printf("%2d: ", totalBlocks);
-            for (int i = 0; i <totalBlocks; ++i) {
-                printf("%2d ", positions[i].rotationNo);
-            }
-            printf("\n");
+                /* - Trying all combinations with all current rotations - */
 
-            pos = totalBlocks - 1;
-            while (++positions[pos].rotationNo == 12) {
-                positions[pos].rotationNo = 0;
-                pos--;
+                /* new world*/
+                memset(world, 0, worldSize * sizeof(Cube));
+                /**
+                 * Here we have:
+                 *  blockInfos[i] = template x + rotation y + pos (x=y=z=0)
+                 * Put first block in center of the world:
+                 */
+                blockInfos[0].p.x = worldCenterX;
+                blockInfos[0].p.y = worldCenterY;
+                blockInfos[0].p.z = worldCenterZ;
+                for (int i = 0; i < totalBlocks; ++i) {
+                    dbs("blockInfos[%d]: rot. %d ",
+                        blockIndexes->elements[i],
+                        blockInfos[i].rotationNo
+                    )
+                    if ((i+1) < totalBlocks) {
+                        db(" - ");
+                    }
+                }
+                dbs("\n");
+
+//                worldPutBlocksFromInfos(world, blockInfos, totalBlocks);
+                worldPutBlocksFromInfos(world, blockInfos, 1);
+//                positionsToTry = computePositionsToTry(world, totalBlocks*2);
+                positionsToTry = computePositionsToTry(world, 1*totalBlocks);
+/*
+                for (ulong i = 0; i < positionsToTry->used; ++i) {
+                    dbs("To try: (%hu, %hu, %hu)\n",
+                        positionsToTry->array[i].x,
+                        positionsToTry->array[i].y,
+                        positionsToTry->array[i].z
+                    )
+                }
+                // worldPutAllBlocks(world, blocksTemplate);
+                for (int currBlock = 0; currBlock < totalBlocks; ++currBlock) {
+                    worldPutBlock(
+                        world, blocksTemplate[currBlock][0], 2 + (currBlock * 3), 3, 2
+                    );
+                }
+                */
+                freePositionsToTry();
+
+                /* - compute next rotation - */
+                pos = totalBlocks - 1;
+                while (++blockInfos[pos].rotationNo == 10) {
+                    blockInfos[pos].rotationNo = 0;
+                    pos--;
+                    if (pos < 0) {
+                        break;
+                    }
+                }
                 if (pos < 0) {
+                    end = clock();
+                    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+                    setlocale(LC_NUMERIC, "en_US.utf-8");
+                    dbs("Done!\n%'lu tries, cpu time used=%'.2fs\n",
+                        count, cpu_time_used)
                     break;
                 }
+
+                /**
+                 * -> With all permutations
+                 * We have:
+                 * - the number of blockInfos: totalBlocks
+                 * - all "current" rotations: blockInfos[]: 0 -> totalBlocks-1
+                 */
+                count++;
             }
-            if (pos < 0) {
-                end = clock();
-                cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-                setlocale(LC_NUMERIC, "en_US.utf-8");
-                printf("%'lu, cpu_time_used=%'f ", count, cpu_time_used);
-                printf("Done !\n");
-                break;
-            }
 
-            /**
-             * -> With all permutations
-             * We have:
-             * - the number of blocks: totalBlocks
-             * - all "current" rotations: positions[]: 0 -> totalBlocks-1
-             */
-            count++;
-        }
-
-        freeWorld();
-        printf("Allocating %lu cells.\n", worldSize);
-        world = calloc(worldSize, sizeof(Cube));
-
-        // worldPutAllBlocks(world, blocksTemplate);
-        for (int currBlock = 0; currBlock < totalBlocks; ++currBlock) {
-            worldPutBlock(
-                world, blocksTemplate[currBlock][0], 2 + (currBlock * 3), 3, 2
-            );
-        }
-        freePositionsToTry();
-        positionsToTry = computePositionsToTry(world, totalBlocks*2);
-        for (ulong i = 0; i < positionsToTry->used; ++i) {
-            printf("To try: (%hu, %hu, %hu)\n",
-                positionsToTry->array[i].x,
-                positionsToTry->array[i].y,
-                positionsToTry->array[i].z
-            );
-        }
+        } while (nextPerm(blockIndexes, 12));
+        freeBlockIndexes();
 
         objWriteFullWorld(world);
         break;
     }
+    freeWorld();
+
     return 0;
 }

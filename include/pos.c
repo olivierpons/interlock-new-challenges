@@ -3,8 +3,7 @@
 //
 
 #include "pos.h"
-#include "custom_types.h"
-#include <malloc.h>
+#include "debug.h"
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +16,7 @@ void initPosList(PosList *a, size_t initialSize) {
 
 void appendPosListOnce(PosList *a, uint16_t x, uint16_t y, uint16_t z) {
     for (ulong i = 0; i <a->used; ++i) {
-//        printf("(%hu, %hu, %hu): Trying... (%hu, %hu, %hu)\n",
+//        dbs("(%hu, %hu, %hu): Trying... (%hu, %hu, %hu)\n",
 //            x, y, z,
 //            a->elements[i].x, a->elements[i].y, a->elements[i].z
 //        );
@@ -26,7 +25,7 @@ void appendPosListOnce(PosList *a, uint16_t x, uint16_t y, uint16_t z) {
             (a->array[i].y == y) &&
             (a->array[i].z == z)
         ) {
-            printf("Already present: (%hu, %hu, %hu)\n", x, y, z);
+            dbs("Already present: (%hu, %hu, %hu)\n", x, y, z)
             return;
         }
     }

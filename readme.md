@@ -18,18 +18,18 @@ My advice: if you're into brain-teasers, buy it, it's worth very penny!
 
 ## Why do a program to generate all challenges for this brain-teaser?
 There are 50 possible combinations / challenges.
-The two hardest ones are these, which use 11 blocks:
+The two hardest ones are these, which use 11 blockInfos:
 ![Interlock, the hide the plug and socket puzzle!](img/manual-solution-49-and-50.png)
 
-So, the two hardest ones use 11 blocks... and we have 12 blocks!
+So, the two hardest ones use 11 blockInfos... and we have 12 blockInfos!
 
-**There is no combinations / challenges that uses the 12 blocks of the game!**
+**There is no combinations / challenges that uses the 12 blockInfos of the game!**
 
 I find this very frustrating.
 
 How about programming a solver, and after I've done this, create new challenges,
-and maybe if it's possible, create new blocks to see if we can have different
-blocks and brand-new challenges?
+and maybe if it's possible, create new blockInfos to see if we can have different
+blockInfos and brand-new challenges?
 
 ## How to do it? Which language, and why?
 
@@ -59,12 +59,12 @@ you have to find a workaround...
 
 ### 2022-03-12
 I worked this whole saturday afternoon to have a basic C working skeleton:
-- a list of "blocks"
+- a list of "blockInfos"
 - a "block is made of "parts"
 - a "part" is a 3D cube + information saying if it's the base of the "block"
 or a 3D cube with an *offset* from the base of the "block"
 
-This might sound complex for a game with blocks that have only 2 cubes,
+This might sound complex for a game with blockInfos that have only 2 cubes,
 but organizing things like this, I will be able to have more than 2 cubes for 
 one block.
 
@@ -74,7 +74,7 @@ motivate myself!*). If you are interested, I will gladly answer (to guess
 my mail, it's simple: take 
 [my name from here](https://github.com/olivierpons/) and add "at gmail.com").
 
-Entered the 12 blocks configuration in my `main.c` file.
+Entered the 12 blockInfos configuration in my `main.c` file.
 
 Made my code run under Linux, so I can use valgrind.
 
@@ -82,9 +82,9 @@ Made sure there's no memory leak:
 
 ```
 HEAP SUMMARY:
-    in use at exit: 0 bytes in 0 blocks
+    in use at exit: 0 bytes in 0 blockInfos
   ...blabla...
-All heap blocks were freed -- no leaks are possible
+All heap blockInfos were freed -- no leaks are possible
 ```
 Yay!
 
@@ -116,7 +116,7 @@ So I've done 50% of the point `2` (see below).
 ### 2022-03-26
 01h35: I've finally done it! I've managed to connect a sphere to a square!
 This wasn't easy, believe me!
-Now I can have blocks with plugs & sockets!
+Now I can have blockInfos with plugs & sockets!
 Step 2 (below) almost done!
 
 ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-01h25.png)
@@ -140,10 +140,10 @@ using the "roll / pitch / yaw" principle.
 I reached those goals:
 - pre-compute all possible rotations,
   using the "roll / pitch / yaw" principle
-- giving a whole world of "blocks" (only Cube's actually), generate a full 
+- giving a whole world of "blockInfos" (only Cube's actually), generate a full 
   3D `obj` file.
 
-So, I've generated all the blocks possible in all possible rotations, and here
+So, I've generated all the blockInfos possible in all possible rotations, and here
 they are:
 
   ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-30-21h53.png)
@@ -158,16 +158,16 @@ they are:
 3. **`✓ 100%`**: Giving a whole world, generate a full 3D `obj` file;
 4. **`✓ 100%`**: Put a block in the world;
 5. **`✗ ..0%`**: Put a block in the world, and try to put another block next to 
-   it (only *valid* positions);
+   it (only *valid* blockInfos);
 6. **`✗ ..0%`**: Algorithm that checks in the world if there are only "flat" 
    visible faces (= no sockets / holes visible);
 7. **`✓ 100%`**: Pre-compute all rotations of a block (for the world);
-8. **`✗ ..0%`**: For all possible rotations, of **2** blocks, 
+8. **`✗ ..0%`**: For all possible rotations, of **2** blockInfos, 
    try to put them next to each other, and check if there are only "flat" 
    visible faces. If so, generate the corresponding 3D obj file.
-9. **`✗ ..0%`**: With *all combinations* of 2 blocks taken from the 12
-   possible blocks, try to make *all combinations* of *all rotations*
-   and generate + write 3D files of valid positions (= only flat faces
+9. **`✗ ..0%`**: With *all combinations* of 2 blockInfos taken from the 12
+   possible blockInfos, try to make *all combinations* of *all rotations*
+   and generate + write 3D files of valid blockInfos (= only flat faces
    visible).
 10. **`✗ 0%`**: Use godotengine and read all the 3D files and show them: 
     see #1 results for this:

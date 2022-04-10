@@ -19,10 +19,11 @@ typedef struct Block {
     Part parts[];
 } Block;
 
-typedef struct BlockPosition {
-     uint8_t rotationNo;
-     Pos p;
-} BlockPosition;
+typedef struct BlockInformation {
+    Block **block;
+    uint8_t rotationNo;
+    Pos p;
+} BlockInformation;
 
 
 

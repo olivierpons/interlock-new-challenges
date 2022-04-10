@@ -17,6 +17,12 @@ extern const ulong WORLD_SIZE;
 #define XYZ(_x, _y, _z) \
     ((_x) + ((_y)*WORLD_SIZE_X) + ((_z)*WORLD_SIZE_X*WORLD_SIZE_Y))
 
+extern void worldPutBlocksFromInfos(
+    Cube* world, BlockInformation *pBI, int nbBi
+);
+extern void worldPutBlock(
+    Cube* world, Block *b, double long x, double long y, double long z
+);
 extern void worldPutAllBlocks(Cube* world, Block ***blocks);
 extern bool worldCanPutBlock(
     Cube* world, Block *block, uint16_t x, uint16_t y, uint16_t z

@@ -33,7 +33,7 @@
         sprintf((h)->name, "g "n"\n", r); \
         sprintf((h)->material, "usemtl "m"\n");
 
-/* W_LINK() = "Write Link()"*/
+/* W_LINK() = "Write Link()" */
 #define W_LINK(h, tmp, r1, r2, r4, r3) \
         S_W(h, tmp, "f %lu//1 %lu//1 %lu//1 %lu//1\n", r1, r2, r4, r3)
 

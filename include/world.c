@@ -9,12 +9,30 @@
 #include "block.h"
 #include "world.h"
 #include "pos.h"
+#include "debug.h"
 
 const ulong WORLD_SIZE_X = 60;
 const ulong WORLD_SIZE_Y = 60;
 const ulong WORLD_SIZE_Z = 60;
 const ulong WORLD_SIZE_XY = WORLD_SIZE_X * WORLD_SIZE_Y;
 const ulong WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
+
+void worldPutBlocksFromInfos(Cube* world, BlockInformation *pBI, int nbBi)
+{
+    dbStart("worldPutBlocksFromInfos()\n");
+    for (int i = 0; i < nbBi; ++i) {
+        dbs("worldPutBlocksFromInfos(): loop %i: "
+            "pBI[%i]=%p / %p / block = %p, rot = %d -> %p.\n",
+            i, i, pBI, &(pBI[i]), pBI[i].block, pBI[i].rotationNo,
+            pBI[i].block[ pBI[i].rotationNo ]
+        );
+        worldPutBlock(
+            world, pBI[i].block[ pBI[i].rotationNo ],
+            pBI[i].p.x, pBI[i].p.y, pBI[i].p.z
+        );
+    }
+    dbEnd("worldPutBlocksFromInfos() done.\n");
+}
 
 void worldPutBlock(
     Cube* world, Block *b, double long x, double long y, double long z
@@ -23,8 +41,8 @@ void worldPutBlock(
     for (int i = 0; i < b->total; ++i) {
         p = &(b->parts[i]);
         long long a = XYZ(x + p->offsetX, y + p->offsetY, z + p->offsetZ);
-        printf(
-            "%d -> %lld -> (%.2Lf, %.2Lf, %.2Lf)\n",
+        dbs(
+            "worldPutBlock: %d -> %lld -> (%.2Lf, %.2Lf, %.2Lf)\n",
             i, a, x + p->offsetX, y + p->offsetY, z + p->offsetZ
         );/**/
         assert(a >=0 );
@@ -50,7 +68,7 @@ void worldPutAllBlocks(Cube* world, Block ***blocks) {
     }
 }
 
-bool CubeIsEmpty(Cube* world, ulong x, ulong y, ulong z)
+bool cubeIsEmpty(Cube* world, ulong x, ulong y, ulong z)
 {
     if (
         (x>=0) && (x<WORLD_SIZE_X) &&
@@ -58,7 +76,7 @@ bool CubeIsEmpty(Cube* world, ulong x, ulong y, ulong z)
         (z>=0) && (z<WORLD_SIZE_Z)
     ) {
         if (CUBE_EMPTY(world[XYZ(x, y, z)])) {
-            printf("- ok : %3lu / %3lu / %3lu\n", x-1, y, z);
+            dbs("- ok: (%3lu/%3lu/%3lu)\n", x-1, y, z);
             return true;
         }
     }
@@ -69,7 +87,7 @@ bool worldCanPutBlock(
     Cube* world, Block *block, uint16_t x, uint16_t y, uint16_t z
 ) {
     for (int i = 0; i <block->total; ++i) {
-        if (!CubeIsEmpty(world, x, y, z)) {
+        if (!cubeIsEmpty(world, x, y, z)) {
             return false;
         }
     }
@@ -79,7 +97,7 @@ bool worldCanPutBlock(
 void appendPosListOnceIfCubeEmpty(
     Cube* world, PosList *list, ulong x, ulong y, ulong z
 ) {
-    if (CubeIsEmpty(world, x, y, z)) {
+    if (cubeIsEmpty(world, x, y, z)) {
         appendPosListOnce(list, x, y, z);
     }
 }
@@ -88,10 +106,7 @@ PosList *computePositionsToTry(Cube* world, ulong nbCubesInWorld)
 {
     PosList *list = calloc(1, sizeof(PosList));
     ulong found = 0;
-    if (!list) {
-        printf("Fatal: out of memory error.\n");
-        exit(-1);
-    }
+    assert(list);
 
     initPosList(list, 1);
     for (ulong i = 0; i < WORLD_SIZE; ++i) {
@@ -102,8 +117,8 @@ PosList *computePositionsToTry(Cube* world, ulong nbCubesInWorld)
             // ulong y = (i / WORLD_SIZE_X) %  WORLD_SIZE_Y;
             ulong y = (i % WORLD_SIZE_XY) / WORLD_SIZE_X;
             ulong z = i / WORLD_SIZE_XY;
-            printf("-------------------------------\n");
-            printf("%4lu: %3lu / %3lu / %3lu\n", i, x, y, z);
+            db("-------------------------------\n");
+            dbs("%4lu: %3lu / %3lu / %3lu\n", i, x, y, z);
             appendPosListOnceIfCubeEmpty(world, list, x - 1, y, z);
             appendPosListOnceIfCubeEmpty(world, list, x + 1, y, z);
             appendPosListOnceIfCubeEmpty(world, list, x, y - 1, z);
@@ -117,7 +132,7 @@ PosList *computePositionsToTry(Cube* world, ulong nbCubesInWorld)
             }
         }
     }
-    printf("Fatal: didn't find all the cubes: expected %lu, found: %lu.\n",
+    dbs("Fatal: didn't find all the cubes: expected %lu, found: %lu.\n",
         nbCubesInWorld, found);
     exit(-1);
 }
