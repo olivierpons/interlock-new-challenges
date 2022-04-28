@@ -227,7 +227,7 @@ void objWriteFaceWithPlug(
     long double rotX, long double rotY, long double rotZ,
     bool goOutside)
 {
-    ulong circlePoints = 10;
+    ulong circlePoints = 50;
     long double radius = 0.20;
     const ulong NB_POINTS = (
         8 // inner + outer square

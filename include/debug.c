@@ -34,5 +34,6 @@ void db(char *str)
 {
     dbIndent();
     printf("%s", str);
+    fflush(stdout);
 }
 

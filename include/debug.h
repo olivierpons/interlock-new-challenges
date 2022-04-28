@@ -9,7 +9,9 @@
 #include <linux/limits.h>
 #endif
 
-#define dbs(...) { char str[PATH_MAX]; sprintf(str, __VA_ARGS__); db(str); }
+#define dbs(...) { \
+    char str[PATH_MAX]; sprintf(str, __VA_ARGS__); db(str); fflush(stdout); \
+    }
 
 extern void dbStart(char *str);
 extern void dbEnd(char *str);

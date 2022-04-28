@@ -3,6 +3,7 @@
 #include <time.h>
 #include <locale.h>
 #include <string.h>
+#include <signal.h>
 #include "include/custom_types.h"
 #include "include/cube.h"
 #include "include/block.h"
@@ -16,14 +17,14 @@
 
 Cube* world = NULL;
 Block ***blocksTemplate = NULL;
-PosList *positionsToTry = NULL;
+PosList positionsToTry;
 BlockInformation blockInfos[NB_BLOCKS];
 Perms *blockIndexes = NULL;
 
 // region - Functions that free everything -
 void freeBlocks() {
     if (blocksTemplate) {
-        printf("Freeing blocs...\n");
+        db("Freeing blocs...\n");
         for (int i = 0; i < NB_BLOCKS; ++i) {
             for (int j = 0; j < NB_BLOCK_ROTATIONS; ++j) {
                 if (blocksTemplate[i][j]) {
@@ -38,25 +39,42 @@ void freeBlocks() {
 }
 void freeWorld() {
     if (world) {
-        printf("Freeing world...\n");
+        db("Freeing world...\n");
         free(world);
         world = NULL;
     }
 }
 void freePositionsToTry() {
-    if (positionsToTry) {
-        printf("Freeing positionsToTry...\n");
-        freePosList(positionsToTry);
-        free(positionsToTry);
-        positionsToTry = NULL;
+    if (positionsToTry.array) {
+        db("Freeing positionsToTry...\n");
+        freePosList(&positionsToTry);
     }
 }
 void freeBlockIndexes() {
     if (blockIndexes) {
-        printf("Freeing blockIndexes...\n");
+        db("Freeing blockIndexes...\n");
         blockIndexes = freePerms(blockIndexes);
     }
 }
+
+void freeAll() {
+    atexit(freeBlocks);
+    atexit(freeWorld);
+    atexit(freePositionsToTry);
+    atexit(freeBlockIndexes);
+}
+
+void sig_handler(int signo) {
+    if (signo == SIGINT) {
+        db("Received SIGINT\n");
+    }
+    if (signo == SIGTERM) {
+        db("Received SIGTERM\n");
+    }
+    freeAll();
+    exit(-1);
+}
+
 // endregion
 
 void blockCreateAllRotations(Block ***b, ulong i) {
@@ -231,11 +249,27 @@ void blockCreateAllRotations(Block ***b, ulong i) {
 //}
 
 int main() {
-    atexit(freeBlocks);
-    atexit(freeWorld);
-    atexit(freePositionsToTry);
-    atexit(freeBlockIndexes);
+    // make sure functions to free all memory are ALWAYS called:
+    if (signal(SIGINT, sig_handler) == SIG_ERR) {
+        db("\ncan't catch SIGINT\n");
+        exit(-1);
+    }
+    if (signal(SIGTERM, sig_handler) == SIG_ERR) {
+        db("\ncan't catch SIGTERM\n");
+        exit(-1);
+    }
+    atexit(freeAll);
 
+    const ulong worldSize = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
+    const ulong worldCenterX = WORLD_SIZE_X / 2;
+    const ulong worldCenterY = WORLD_SIZE_Y / 2;
+    const ulong worldCenterZ = WORLD_SIZE_Z / 2;
+    clock_t start, end;
+    double cpu_time_used;
+    ulong count = 0;
+    start = clock();
+
+    // all allocations before loops:
     blocksTemplate = calloc(NB_BLOCKS, sizeof(Block **));
     if (!blocksTemplate) {
         exit(-1);
@@ -246,6 +280,8 @@ int main() {
             exit(-1);
         }
     }
+    initPosList(&positionsToTry, 50);
+
     // region - Blocks creation -
     blocksTemplate[0][0] = blockCreateWithParts(2,
         // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
@@ -340,20 +376,13 @@ int main() {
      *          +-- Part
      */
 
-    const ulong worldSize = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
-    const ulong worldCenterX = WORLD_SIZE_X / 2;
-    const ulong worldCenterY = WORLD_SIZE_Y / 2;
-    const ulong worldCenterZ = WORLD_SIZE_Z / 2;
-    clock_t start, end;
-    double cpu_time_used;
-    ulong count = 0;
-    start = clock();
-
     // creating the world:
     printf("Creating world: allocating %lu cubes.\n", worldSize);
     world = malloc(worldSize * sizeof(Cube));
 
-    for (uint8_t totalBlocks = 2; totalBlocks < 12; ++totalBlocks) {
+    // always start with 2 blocks, maybe with only 2 there's a solution anyway:
+    blockIndexes = allocPerms(6, NB_BLOCKS);
+    for (uint8_t blocksPicked = 6; blocksPicked < NB_BLOCKS; ++blocksPicked) {
 
         /**
          * combinations vs permutations!
@@ -396,11 +425,11 @@ int main() {
          *                              if "all flat":
          *                                  found a solution -> save world!
          */
-        printf("TotalBlocks: %2d: \n", totalBlocks);
+        dbs("BlocksPicked: %2d: \n", blocksPicked)
         // blockIndexes = for "picking" blocksTemplate:
-        blockIndexes = allocPerms(totalBlocks);
+        blockIndexes = resetPerms(blockIndexes, blocksPicked);
         // Init all blocks we're going to work with:
-        for (int i = 0; i <totalBlocks; ++i) {
+        for (int i = 0; i < blocksPicked; ++i) {
             /**
              * blocksTemplate       = ***Block = list of "**"
              * blocksTemplate[x]    = **Block  = list of "*"
@@ -411,14 +440,12 @@ int main() {
             blockInfos[i].block = blocksTemplate[blockIndexes->elements[i]];
         }
         do {
-            // do- while on all possible rotations:
+            printPerms(blockIndexes);
+            // loop on all possible rotations for all blockInfos[]:
             int pos;
             for (;;) {
                 pos = 0;
-
-                /* - Trying all combinations with all current rotations - */
-
-                /* new world*/
+                /* reset world (TODO: optimization: reset only used cubes) */
                 memset(world, 0, worldSize * sizeof(Cube));
                 /**
                  * Here we have:
@@ -428,21 +455,21 @@ int main() {
                 blockInfos[0].p.x = worldCenterX;
                 blockInfos[0].p.y = worldCenterY;
                 blockInfos[0].p.z = worldCenterZ;
-                for (int i = 0; i < totalBlocks; ++i) {
-                    dbs("blockInfos[%d]: rot. %d ",
-                        blockIndexes->elements[i],
-                        blockInfos[i].rotationNo
-                    )
-                    if ((i+1) < totalBlocks) {
-                        db(" - ");
+                for (int i = 0; i < blocksPicked; ++i) {
+//                    dbs("blockInfos[%d]: rot. %d ",
+//                        blockIndexes->elements[i],
+//                        blockInfos[i].rotationNo
+//                    )
+                    if ((i+1) < blocksPicked) {
+//                        db(" - ");
                     }
                 }
-                dbs("\n");
+//                dbs("\n")
 
-//                worldPutBlocksFromInfos(world, blockInfos, totalBlocks);
+//                worldPutBlocksFromInfos(world, blockInfos, blocksPicked);
                 worldPutBlocksFromInfos(world, blockInfos, 1);
-//                positionsToTry = computePositionsToTry(world, totalBlocks*2);
-                positionsToTry = computePositionsToTry(world, 1*totalBlocks);
+//                positionsToTry = computePositionsToTry(world, blocksPicked*2);
+//                positionsToTry = computePositionsToTry(world, 1*blocksPicked);
 /*
                 for (ulong i = 0; i < positionsToTry->used; ++i) {
                     dbs("To try: (%hu, %hu, %hu)\n",
@@ -452,16 +479,17 @@ int main() {
                     )
                 }
                 // worldPutAllBlocks(world, blocksTemplate);
-                for (int currBlock = 0; currBlock < totalBlocks; ++currBlock) {
+                for (int currBlock = 0; currBlock < blocksPicked; ++currBlock) {
                     worldPutBlock(
                         world, blocksTemplate[currBlock][0], 2 + (currBlock * 3), 3, 2
                     );
                 }
                 */
-                freePositionsToTry();
+
+                count++;
 
                 /* - compute next rotation - */
-                pos = totalBlocks - 1;
+                pos = blocksPicked - 1;
                 while (++blockInfos[pos].rotationNo == 10) {
                     blockInfos[pos].rotationNo = 0;
                     pos--;
@@ -477,22 +505,14 @@ int main() {
                         count, cpu_time_used)
                     break;
                 }
-
-                /**
-                 * -> With all permutations
-                 * We have:
-                 * - the number of blockInfos: totalBlocks
-                 * - all "current" rotations: blockInfos[]: 0 -> totalBlocks-1
-                 */
-                count++;
             }
 
         } while (nextPerm(blockIndexes, 12));
-        freeBlockIndexes();
 
         objWriteFullWorld(world);
         break;
     }
+    freeBlockIndexes();
     freeWorld();
 
     return 0;

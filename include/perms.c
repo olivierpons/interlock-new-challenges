@@ -2,80 +2,98 @@
 // Created by olivier on 03/04/2022.
 //
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include "perms.h"
+#include "debug.h"
 
-/**
- * Inspired by stackoverflow here:
- * https://stackoverflow.com/a/44036562/106140
- *
- * Lets say your elements of letters looks like this: "ABCDEFGH".
- * You have three indices (i, j, k) indicating which letters you are
- * going to use for the current word, You start with:
- *
- * A B C D E F G H
- * ^ ^ ^
- * i j k
- * First you vary k, so the next step looks like that:
- *
- * A B C D E F G H
- * ^ ^   ^
- * i j   k
- * If you reached the end you go on and vary j and then k again.
- *
- * A B C D E F G H
- * ^   ^ ^
- * i   j k
- *
- * A B C D E F G H
- * ^   ^   ^
- * i   j   k
- * Once you j reached G you start also to vary i.
- *
- * A B C D E F G H
- *   ^ ^ ^
- *   i j k
- *
- * A B C D E F G H
- *   ^ ^   ^
- *   i j   k
- * ...
- */
-
-Perms *allocPerms(int length) {
+Perms *allocPerms(int used, size_t size) {
     Perms *p;
-    p = calloc(length, sizeof(Perms));
-    p->elements = calloc(length, sizeof(int));
-    for (int i=0; i < length; ++i) {
+    p = calloc(size, sizeof(Perms));
+    p->elements = calloc(size, sizeof(int));
+    dbs("allocPerms(): p->elements = %p\n", p->elements)
+    return resetPerms(p, used);
+}
+
+Perms *resetPerms(Perms *p, int used) {
+    for (int i=0; i < used; ++i) {
         p->elements[i] = i;
     }
-    p->length = length;
-    p->current = length-1;
+    p->used = used;
+    p->current = used - 1;
+    dbs("resetPerms(): p->used = %zu, p->current = %d\n", p->used, p->current)
     return p;
 }
+
 Perms *freePerms(Perms *permutations) {
     if (permutations) {
         free(permutations->elements);
         permutations->elements = NULL;
         permutations->current = 0;
-        permutations->length = 0;
+        permutations->used = 0;
     }
     free(permutations);
     return NULL;
 }
 
-bool nextPerm(Perms *p, int arrayLength) {
-    if (++p->elements[p->current] < arrayLength) {
+void printPerms(Perms *p) {
+    for (size_t i=0; i<p->used; ++i) {
+        dbs(">   p->elements[%zu/%zu] = %d\n", i, p->used, p->elements[i])
+    }
+}
+bool nextPerm(Perms *p, size_t limit) {
+    /**
+     * Inspired by stackoverflow here:
+     * https://stackoverflow.com/a/44036562/106140
+     *
+     * Lets say your elements of letters looks like this: "ABCDEFGH".
+     * You have three indices (i, j, k) indicating which letters you are
+     * going to use for the current word, You start with:
+     *
+     * A B C D E F G H
+     * ^ ^ ^
+     * i j k
+     * First you vary k, so the next step looks like that:
+     *
+     * A B C D E F G H
+     * ^ ^   ^
+     * i j   k
+     * If you reached the end you go on and vary j and then k again.
+     *
+     * A B C D E F G H
+     * ^   ^ ^
+     * i   j k
+     *
+     * A B C D E F G H
+     * ^   ^   ^
+     * i   j   k
+     * Once you j reached G you start also to vary i.
+     *
+     * A B C D E F G H
+     *   ^ ^ ^
+     *   i j k
+     *
+     * A B C D E F G H
+     *   ^ ^   ^
+     *   i j   k
+     * ...
+     */
+    ++p->elements[p->current];
+    if (p->current == p->used - 1) {
+        if (p->elements[p->current] < limit) {
+            return true;
+        }
+    } else if (p->elements[p->current] < p->elements[p->current+1]) {
         return true;
     }
+    --p->elements[p->current];
     while (--p->current>=0) {
         ++p->elements[p->current];
-        if (p->elements[p->current] < arrayLength-(p->length-p->current-1)) {
-            for (int i = p->current + 1; i < p->length ; ++i) {
+        if (p->elements[p->current] < p->elements[p->current+1]-1) {
+            for (size_t i = p->current + 2; i < p->used ; ++i) {
                 p->elements[i] = p->elements[i-1] + 1;
             }
-            p->current = p->length-1;
             return true;
         }
     }

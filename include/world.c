@@ -3,7 +3,6 @@
 //
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include "cube.h"
 #include "block.h"
@@ -11,27 +10,27 @@
 #include "pos.h"
 #include "debug.h"
 
-const ulong WORLD_SIZE_X = 60;
-const ulong WORLD_SIZE_Y = 60;
-const ulong WORLD_SIZE_Z = 60;
+const ulong WORLD_SIZE_X = 10;
+const ulong WORLD_SIZE_Y = 10;
+const ulong WORLD_SIZE_Z = 10;
 const ulong WORLD_SIZE_XY = WORLD_SIZE_X * WORLD_SIZE_Y;
 const ulong WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
 
 void worldPutBlocksFromInfos(Cube* world, BlockInformation *pBI, int nbBi)
 {
-    dbStart("worldPutBlocksFromInfos()\n");
+//    dbStart("worldPutBlocksFromInfos()\n");
     for (int i = 0; i < nbBi; ++i) {
-        dbs("worldPutBlocksFromInfos(): loop %i: "
-            "pBI[%i]=%p / %p / block = %p, rot = %d -> %p.\n",
-            i, i, pBI, &(pBI[i]), pBI[i].block, pBI[i].rotationNo,
-            pBI[i].block[ pBI[i].rotationNo ]
-        );
+//        dbs("worldPutBlocksFromInfos(): loop %i: "
+//            "pBI[%i]=%p / %p / block = %p, rot = %d -> %p.\n",
+//            i, i, pBI, &(pBI[i]), pBI[i].block, pBI[i].rotationNo,
+//            pBI[i].block[ pBI[i].rotationNo ]
+//        );
         worldPutBlock(
             world, pBI[i].block[ pBI[i].rotationNo ],
             pBI[i].p.x, pBI[i].p.y, pBI[i].p.z
         );
     }
-    dbEnd("worldPutBlocksFromInfos() done.\n");
+//    dbEnd("worldPutBlocksFromInfos() done.\n");
 }
 
 void worldPutBlock(
@@ -41,10 +40,10 @@ void worldPutBlock(
     for (int i = 0; i < b->total; ++i) {
         p = &(b->parts[i]);
         long long a = XYZ(x + p->offsetX, y + p->offsetY, z + p->offsetZ);
-        dbs(
-            "worldPutBlock: %d -> %lld -> (%.2Lf, %.2Lf, %.2Lf)\n",
-            i, a, x + p->offsetX, y + p->offsetY, z + p->offsetZ
-        );/**/
+//        dbs(
+//            "worldPutBlock: %d -> %lld -> (%.2Lf, %.2Lf, %.2Lf)\n",
+//            i, a, x + p->offsetX, y + p->offsetY, z + p->offsetZ
+//        );/**/
         assert(a >=0 );
         world[a] = p->c;
     }
@@ -83,28 +82,22 @@ bool cubeIsEmpty(Cube* world, ulong x, ulong y, ulong z)
     return false;
 }
 
-bool worldCanPutBlock(
-    Cube* world, Block *block, uint16_t x, uint16_t y, uint16_t z
-) {
-    for (int i = 0; i <block->total; ++i) {
-        if (!cubeIsEmpty(world, x, y, z)) {
-            return false;
+void computePositionsToTry(
+    Cube* world, PosList *listDst, BlockInformation *blockInfos, int blocksInWorld
+)
+{
+    int listIdx = 0;
+    for (int i = 0; i < blocksInWorld; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            Block *b = blockInfos[i].block[j];
+            // loop on parts of this block:
+            for (int k = 0; k < b->total; ++k) {
+
+            }
+
         }
     }
-    return true;
-}
-
-void appendPosListOnceIfCubeEmpty(
-    Cube* world, PosList *list, ulong x, ulong y, ulong z
-) {
-    if (cubeIsEmpty(world, x, y, z)) {
-        appendPosListOnce(list, x, y, z);
-    }
-}
-
-PosList *computePositionsToTry(Cube* world, ulong nbCubesInWorld)
-{
-    PosList *list = calloc(1, sizeof(PosList));
+    /*
     ulong found = 0;
     assert(list);
 
@@ -126,7 +119,7 @@ PosList *computePositionsToTry(Cube* world, ulong nbCubesInWorld)
             appendPosListOnceIfCubeEmpty(world, list, x, y, z - 1);
             appendPosListOnceIfCubeEmpty(world, list, x, y, z + 1);
 
-            /* optimization: no need to continue if all cubes are tested: */
+            // optimization: no need to continue if all cubes are tested:
             if ((++found) == nbCubesInWorld) {
                 return list;
             }
@@ -135,4 +128,24 @@ PosList *computePositionsToTry(Cube* world, ulong nbCubesInWorld)
     dbs("Fatal: didn't find all the cubes: expected %lu, found: %lu.\n",
         nbCubesInWorld, found);
     exit(-1);
+    */
+}
+
+bool worldCanPutBlock(
+    Cube* world, Block *block, uint16_t x, uint16_t y, uint16_t z
+) {
+    for (int i = 0; i <block->total; ++i) {
+        if (!cubeIsEmpty(world, x, y, z)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void appendPosListOnceIfCubeEmpty(
+    Cube* world, PosList *list, ulong x, ulong y, ulong z
+) {
+    if (cubeIsEmpty(world, x, y, z)) {
+        appendPosListOnce(list, x, y, z);
+    }
 }
