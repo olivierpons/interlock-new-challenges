@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "perms.h"
 #include "debug.h"
 
@@ -38,9 +39,13 @@ Perms *freePerms(Perms *permutations) {
 }
 
 void printPerms(Perms *p) {
+    char tmp[20];
+    db("> ");
     for (size_t i=0; i<p->used; ++i) {
-        dbs(">   p->elements[%zu/%zu] = %d\n", i, p->used, p->elements[i])
+        sprintf(tmp, "%d ", p->elements[i]);
+        db(tmp);
     }
+    db("\n");
 }
 bool nextPerm(Perms *p, size_t limit) {
     /**

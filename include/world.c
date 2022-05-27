@@ -13,13 +13,11 @@
 const ulong WORLD_SIZE_X = 10;
 const ulong WORLD_SIZE_Y = 10;
 const ulong WORLD_SIZE_Z = 10;
-const ulong WORLD_SIZE_XY = WORLD_SIZE_X * WORLD_SIZE_Y;
-const ulong WORLD_SIZE = WORLD_SIZE_X * WORLD_SIZE_Y * WORLD_SIZE_Z;
 
-void worldPutBlocksFromInfos(Cube* world, BlockInformation *pBI, int nbBi)
+void worldPutBlocksFromInfos(Cube* world, BlockInformation *pBI, int length)
 {
 //    dbStart("worldPutBlocksFromInfos()\n");
-    for (int i = 0; i < nbBi; ++i) {
+    for (int i = 0; i < length; ++i) {
 //        dbs("worldPutBlocksFromInfos(): loop %i: "
 //            "pBI[%i]=%p / %p / block = %p, rot = %d -> %p.\n",
 //            i, i, pBI, &(pBI[i]), pBI[i].block, pBI[i].rotationNo,
@@ -34,7 +32,7 @@ void worldPutBlocksFromInfos(Cube* world, BlockInformation *pBI, int nbBi)
 }
 
 void worldPutBlock(
-    Cube* world, Block *b, double long x, double long y, double long z
+    Cube *world, Block *b, double long x, double long y, double long z
 ) {
     Part *p;
     for (int i = 0; i < b->total; ++i) {
@@ -49,7 +47,7 @@ void worldPutBlock(
     }
 }
 
-void worldPutAllBlocks(Cube* world, Block ***blocks) {
+void worldPutAllBlocks(Cube *world, Block ***blocks) {
     printfCube(blocks, 0, 0);
     // manual test:
     for (int i = 0; i < 12; ++i) {
@@ -67,7 +65,7 @@ void worldPutAllBlocks(Cube* world, Block ***blocks) {
     }
 }
 
-bool cubeIsEmpty(Cube* world, ulong x, ulong y, ulong z)
+bool cubeIsEmpty(Cube *world, ulong x, ulong y, ulong z)
 {
     if (
         (x>=0) && (x<WORLD_SIZE_X) &&

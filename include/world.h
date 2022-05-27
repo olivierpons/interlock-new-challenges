@@ -18,7 +18,7 @@ extern const ulong WORLD_SIZE;
     ((_x) + ((_y)*WORLD_SIZE_X) + ((_z)*WORLD_SIZE_X*WORLD_SIZE_Y))
 
 extern void worldPutBlocksFromInfos(
-    Cube* world, BlockInformation *pBI, int nbBi
+    Cube* world, BlockInformation *pBI, int length
 );
 extern void worldPutAllBlocks(Cube* world, Block ***blocks);
 extern bool worldCanPutBlock(

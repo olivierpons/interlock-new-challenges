@@ -438,6 +438,7 @@ int main() {
              *                                 Block = { total + list of Parts }
              */
             blockInfos[i].block = blocksTemplate[blockIndexes->elements[i]];
+            blockInfos[i].rotationNo = 0;
         }
         do {
             printPerms(blockIndexes);
@@ -445,7 +446,7 @@ int main() {
             int pos;
             for (;;) {
                 pos = 0;
-                /* reset world (TODO: optimization: reset only used cubes) */
+                /* reset world (TODO: optimize: zero-mem ONLY previous cubes) */
                 memset(world, 0, worldSize * sizeof(Cube));
                 /**
                  * Here we have:
@@ -456,16 +457,15 @@ int main() {
                 blockInfos[0].p.y = worldCenterY;
                 blockInfos[0].p.z = worldCenterZ;
                 for (int i = 0; i < blocksPicked; ++i) {
-//                    dbs("blockInfos[%d]: rot. %d ",
-//                        blockIndexes->elements[i],
-//                        blockInfos[i].rotationNo
-//                    )
+                    dbs("blockInfos[%d]: rot. %d ",
+                        blockIndexes->elements[i],
+                        blockInfos[i].rotationNo
+                    )
                     if ((i+1) < blocksPicked) {
-//                        db(" - ");
+                        db(" - ");
                     }
                 }
-//                dbs("\n")
-
+                dbs("\n")
 //                worldPutBlocksFromInfos(world, blockInfos, blocksPicked);
                 worldPutBlocksFromInfos(world, blockInfos, 1);
 //                positionsToTry = computePositionsToTry(world, blocksPicked*2);
@@ -506,7 +506,6 @@ int main() {
                     break;
                 }
             }
-
         } while (nextPerm(blockIndexes, 12));
 
         objWriteFullWorld(world);
