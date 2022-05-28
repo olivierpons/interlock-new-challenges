@@ -4,22 +4,36 @@
 C program to generate new challenges for:
 "Interlock, the hide the plug and socket puzzle!"
 
-[Smartgames](https://www.smartgames.eu/) do the best brain-teaser games around. 
-I have almost all (if not all!) their games.
-They are all great (if not excellent), but Interlock, which
-is *not* from Smartgames, is, IMHO, one of the best brain-teaser ever.
+**Interlock, is from [Eureka!](https://www.eureka-puzzle.eu/).**
+
 Would it be better designed, with more challenges, it would be the best.
 But as it is now, it's already one of the best!
 
-My advice: if you're into brain-teasers, buy it, it's worth very penny!
+**_Note:_** Interlock is *not* from [Smartgames](https://www.smartgames.eu/).
+Even though they do the best brain-teaser games around (I have
+probably 99% of their games). They are all great (if not excellent), 
+but ***Interlock, is, IMHO, one of the best brain-teaser ever***.
 
-![Interlock, the hide the plug and socket puzzle!](img/interlock-game.png)
+My advice: if you're into brain-teasers, buy it, it's worth every penny!
 
+<p style="text-align:center">
+  <img src="img/interlock-game.png" 
+       alt="Interlock, the hide the plug and socket puzzle!"
+       title="Interlock, the hide the plug and socket puzzle!"
+       style="max-width: 100%"
+   />
+</p>
 
 ## Why do a program to generate all challenges for this brain-teaser?
 There are 50 possible combinations / challenges.
 The two hardest ones are these, which use 11 blockInfos:
-![Interlock, the hide the plug and socket puzzle!](img/manual-solution-49-and-50.png)
+<p style="text-align:center">
+  <img src="img/manual-solution-49-and-50.png" 
+       alt="Interlock: solutions 49 and 50 in the manual"
+       title="Interlock: solutions 49 and 50 in the manual"
+       style="width: 100%"
+   />
+</p>
 
 So, the two hardest ones use 11 blockInfos... and we have 12 blockInfos!
 
@@ -98,7 +112,13 @@ template.
 
 Thanks to https://3dviewer.net/, I can validate my obj file:
 
-![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-18-18h25.png)
+<p style="text-align:center">
+  <img src="img/obj.file.snapshot.2022-03-18-18h25.png" 
+       alt="Capture of first valid Obj file"
+       title="Capture of first valid Obj file"
+       style="max-width: 100%"
+   />
+</p>
 
 ### 2022-03-20
 Worked a *lot* on 3D generation. To make a long story short: now I
@@ -106,7 +126,13 @@ generate dynamically a face of an object with a plug, and I rotate it
 if I need it for another face.
 Here's what I can generate: 4 faces, each one with a specific rotation:
 
-![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-20.18h30.png)
+<p style="text-align:center">
+  <img src="img/obj.file.snapshot.2022-03-20.18h30.png" 
+       alt="Capture of first valid Obj file"
+       title="Capture of first valid Obj file"
+       style="max-width: 100%"
+   />
+</p>
 
 So I can consider the first point done.
 Now I have to join the points of a circle with the points of a square
@@ -119,18 +145,36 @@ This wasn't easy, believe me!
 Now I can have blockInfos with plugs & sockets!
 Step 2 (below) almost done!
 
-![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-01h25.png)
+<p style="text-align:center">
+  <img src="img/obj.file.snapshot.2022-03-26-01h25.png" 
+       alt="Capture of first valid Obj file"
+       title="Capture of first valid Obj file"
+       style="max-width: 100%"
+   />
+</p>
 
 19h24: Step 2 (below) 100% done:
 
 Not only can I generate a full template...
 
-![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h22.png)
+<p style="text-align:center">
+  <img src="img/obj.file.snapshot.2022-03-26-19h22.png" 
+       alt="Capture of first valid Obj file"
+       title="Capture of first valid Obj file"
+       style="max-width: 100%"
+   />
+</p>
 
 ...but the full template is also working - in the 3D sense: I can open it under
 Blender:
 
-![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h29.png)
+<p style="text-align:center">
+  <img src="img/obj.file.snapshot.2022-03-26-19h29.png" 
+       alt="Capture of first valid Obj file"
+       title="Capture of first valid Obj file"
+       style="max-width: 100%"
+   />
+</p>
 
 ### 2022-03-29
 I forgot one step (that I've done tonight): pre-compute all possible rotations,
@@ -146,10 +190,38 @@ I reached those goals:
 So, I've generated all the blockInfos possible in all possible rotations, and here
 they are:
 
-  ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-30-21h53.png)
+<p style="text-align:center">
+  <img src="img/obj.file.snapshot.2022-03-30-21h53.png" 
+       alt="Capture of first valid Obj file"
+       title="Capture of first valid Obj file"
+       style="max-width: 100%"
+   />
+</p>
 
- 
+### 2022-05-28
+Two months later, I've decided to try to go further.
+I've done 50% of step 9, with big cleanup. Even though there are a few
+changes in the code, it's a big work - memory leaks problem, thanks
+[valgrind](https://valgrind.org/). I don't know how Windows users
+can program without such powerful tools - maybe they are just slower
+at developing - not criticizing the developers, but criticizing
+the OS ***only***.
+
+<hr>
+
 ### Next steps
+9. **`✗ ..50%`**: With *all combinations* of 2 blockInfos taken from the 12
+    possible blockInfos, try to make *all combinations* of *all rotations*
+    and generate + write 3D files of valid blockInfos (= only flat faces
+    visible).
+10. **`✗ 0%`**: Use godotengine and read all the 3D files and show them: 
+    see #1 results for this:
+    [Importing 3D scenes - Godot Docs](https://www.google.com/search?q=site%3Adocs.godotengine.org+%22importing+3d+scenes%22)
+    Not sure if I'll ever do this!
+
+<hr>
+
+### Steps done
 1. **`✓ 100%`**: see `2022-03-18` above:
    Make basic library to write a Wavefront `obj` file,
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
@@ -157,19 +229,11 @@ they are:
    [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
 3. **`✓ 100%`**: Giving a whole world, generate a full 3D `obj` file;
 4. **`✓ 100%`**: Put a template in the world;
-5. **`✗ ..0%`**: Put a template in the world, and try to put another template next to 
-   it (only *valid* blockInfos);
+5. **`✗ ..0%`**: Put a template in the world, and try to put another template 
+   next to it (only *valid* blockInfos);
 6. **`✗ ..0%`**: Algorithm that checks in the world if there are only "flat" 
    visible faces (= no sockets / holes visible);
 7. **`✓ 100%`**: Pre-compute all rotations of a template (for the world);
 8. **`✗ ..0%`**: For all possible rotations, of **2** blockInfos, 
    try to put them next to each other, and check if there are only "flat" 
    visible faces. If so, generate the corresponding 3D obj file.
-9. **`✗ ..0%`**: With *all combinations* of 2 blockInfos taken from the 12
-   possible blockInfos, try to make *all combinations* of *all rotations*
-   and generate + write 3D files of valid blockInfos (= only flat faces
-   visible).
-10. **`✗ 0%`**: Use godotengine and read all the 3D files and show them: 
-    see #1 results for this:
-    [Importing 3D scenes - Godot Docs](https://www.google.com/search?q=site%3Adocs.godotengine.org+%22importing+3d+scenes%22)
-    Not sure if I'll ever do this!
