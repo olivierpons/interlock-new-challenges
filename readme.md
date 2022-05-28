@@ -16,7 +16,7 @@ but ***Interlock, is, IMHO, one of the best brain-teaser ever***.
 
 My advice: if you're into brain-teasers, buy it, it's worth every penny!
 
-<p style="text-align:center">
+<p align="center" style="text-align:center">
   <img src="img/interlock-game.png" 
        alt="Interlock, the hide the plug and socket puzzle!"
        title="Interlock, the hide the plug and socket puzzle!"
@@ -27,7 +27,7 @@ My advice: if you're into brain-teasers, buy it, it's worth every penny!
 ## Why do a program to generate all challenges for this brain-teaser?
 There are 50 possible combinations / challenges.
 The two hardest ones are these, which use 11 blockInfos:
-<p style="text-align:center">
+<p align="center" style="text-align:center">
   <img src="img/manual-solution-49-and-50.png" 
        alt="Interlock: solutions 49 and 50 in the manual"
        title="Interlock: solutions 49 and 50 in the manual"
@@ -112,7 +112,7 @@ template.
 
 Thanks to https://3dviewer.net/, I can validate my obj file:
 
-<p style="text-align:center">
+<p align="center" style="text-align:center">
   <img src="img/obj.file.snapshot.2022-03-18-18h25.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
@@ -126,7 +126,7 @@ generate dynamically a face of an object with a plug, and I rotate it
 if I need it for another face.
 Here's what I can generate: 4 faces, each one with a specific rotation:
 
-<p style="text-align:center">
+<p align="center" style="text-align:center">
   <img src="img/obj.file.snapshot.2022-03-20.18h30.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
@@ -145,7 +145,7 @@ This wasn't easy, believe me!
 Now I can have blockInfos with plugs & sockets!
 Step 2 (below) almost done!
 
-<p style="text-align:center">
+<p align="center" style="text-align:center">
   <img src="img/obj.file.snapshot.2022-03-26-01h25.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
@@ -157,7 +157,7 @@ Step 2 (below) almost done!
 
 Not only can I generate a full template...
 
-<p style="text-align:center">
+<p align="center" style="text-align:center">
   <img src="img/obj.file.snapshot.2022-03-26-19h22.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
@@ -168,7 +168,7 @@ Not only can I generate a full template...
 ...but the full template is also working - in the 3D sense: I can open it under
 Blender:
 
-<p style="text-align:center">
+<p align="center" style="text-align:center">
   <img src="img/obj.file.snapshot.2022-03-26-19h29.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
@@ -190,7 +190,7 @@ I reached those goals:
 So, I've generated all the blockInfos possible in all possible rotations, and here
 they are:
 
-<p style="text-align:center">
+<p align="center" style="text-align:center">
   <img src="img/obj.file.snapshot.2022-03-30-21h53.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
