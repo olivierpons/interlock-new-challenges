@@ -20,7 +20,7 @@ My advice: if you're into brain-teasers, buy it, it's worth every penny!
   <img src="img/interlock-game.png" 
        alt="Interlock, the hide the plug and socket puzzle!"
        title="Interlock, the hide the plug and socket puzzle!"
-       style="max-width: 100%"
+       align="center" style="max-width: 100%"
    />
 </p>
 
@@ -31,7 +31,7 @@ The two hardest ones are these, which use 11 blockInfos:
   <img src="img/manual-solution-49-and-50.png" 
        alt="Interlock: solutions 49 and 50 in the manual"
        title="Interlock: solutions 49 and 50 in the manual"
-       style="width: 100%"
+       align="center" style="max-width: 100%"
    />
 </p>
 
@@ -116,7 +116,7 @@ Thanks to https://3dviewer.net/, I can validate my obj file:
   <img src="img/obj.file.snapshot.2022-03-18-18h25.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
-       style="max-width: 100%"
+       align="center" style="max-width: 100%"
    />
 </p>
 
@@ -130,7 +130,7 @@ Here's what I can generate: 4 faces, each one with a specific rotation:
   <img src="img/obj.file.snapshot.2022-03-20.18h30.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
-       style="max-width: 100%"
+       align="center" style="max-width: 100%"
    />
 </p>
 
@@ -172,7 +172,7 @@ Blender:
   <img src="img/obj.file.snapshot.2022-03-26-19h29.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
-       style="max-width: 100%"
+       align="center" style="max-width: 100%"
    />
 </p>
 
@@ -194,7 +194,7 @@ they are:
   <img src="img/obj.file.snapshot.2022-03-30-21h53.png" 
        alt="Capture of first valid Obj file"
        title="Capture of first valid Obj file"
-       style="max-width: 100%"
+       align="center" style="max-width: 100%"
    />
 </p>
 
