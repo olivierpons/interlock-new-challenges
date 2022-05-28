@@ -1,6 +1,7 @@
-//
-// Created by olivier on 08/04/2022.
-//
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 08/04/2022
+ */
 
 #ifndef INTERLOCK_DEBUG_H
 #define INTERLOCK_DEBUG_H

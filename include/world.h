@@ -1,7 +1,7 @@
-//
-// Created by olivier on 30/03/2022.
-//
-
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 30/03/2022
+ */
 #ifndef INTERLOCK_WORLD_H
 #define INTERLOCK_WORLD_H
 
@@ -18,13 +18,14 @@ extern const ulong WORLD_SIZE;
     ((_x) + ((_y)*WORLD_SIZE_X) + ((_z)*WORLD_SIZE_X*WORLD_SIZE_Y))
 
 extern void worldPutBlocksFromInfos(
-    Cube* world, BlockInformation *pBI, int length
+    Cube* world, BlockInformation *pBI, int start, int end, Block ***templates
 );
 extern void worldPutAllBlocks(Cube* world, Block ***blocks);
 extern bool worldCanPutBlock(
     Cube* world, Block *block, uint16_t x, uint16_t y, uint16_t z
 );
 extern void computePositionsToTry(
-    Cube* world, PosList *listDst, BlockInformation *blockInfos, int nbBlocks
+    Cube* world, PosList *listDst, BlockInformation *bIs, int blocksInWorld,
+    Block ***templates
 );
 #endif //INTERLOCK_WORLD_H

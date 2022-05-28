@@ -1,6 +1,7 @@
-//
-// © Olivier Pons / HQF Development - 12/03/2022.
-//
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 12/03/2022
+ */
 #include <malloc.h>
 #include <memory.h>
 #include <stdarg.h>
@@ -41,7 +42,7 @@ Block *blockCreateWithParts(int total, ... )
 
 void printfCube(Block ***pBlock, ulong blockNo, ulong rotationNo)
 {
-    printf("block %d: part: %d: ", 1, 0);
+    printf("template %d: part: %d: ", 1, 0);
     cubeToStr(pBlock[blockNo][rotationNo]->parts[0].c);
     printf("         part: %d: ", 1);
     cubeToStr(pBlock[blockNo][rotationNo]->parts[1].c);

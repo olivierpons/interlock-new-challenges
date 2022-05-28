@@ -1,7 +1,7 @@
-//
-// © Olivier Pons / HQF Development - 16/03/2022.
-//
-
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 16/03/2022
+ */
 #ifdef __linux__
 #include <linux/limits.h>
 #endif

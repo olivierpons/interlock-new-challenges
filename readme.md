@@ -60,13 +60,13 @@ you have to find a workaround...
 ### 2022-03-12
 I worked this whole saturday afternoon to have a basic C working skeleton:
 - a list of "blockInfos"
-- a "block is made of "parts"
-- a "part" is a 3D cube + information saying if it's the base of the "block"
-or a 3D cube with an *offset* from the base of the "block"
+- a "template is made of "parts"
+- a "part" is a 3D cube + information saying if it's the base of the "template"
+or a 3D cube with an *offset* from the base of the "template"
 
 This might sound complex for a game with blockInfos that have only 2 cubes,
 but organizing things like this, I will be able to have more than 2 cubes for 
-one block.
+one template.
 
 ### 2022-03-13
 I updated this [`readme.md`](./readme.md) to explain why I'm doing this (*and 
@@ -91,9 +91,9 @@ Yay!
 ### 2022-03-18
 First "good" valid 3D obj file.
 I still have problems with the color vector: I should 
-create/re-use if existing one for each block I generate,
+create/re-use if existing one for each template I generate,
 but I just want to focus on generating a whole Interlock
-block.
+template.
 
 
 Thanks to https://3dviewer.net/, I can validate my obj file:
@@ -123,11 +123,11 @@ Step 2 (below) almost done!
 
 19h24: Step 2 (below) 100% done:
 
-Not only can I generate a full block...
+Not only can I generate a full template...
 
 ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h22.png)
 
-...but the full block is also working - in the 3D sense: I can open it under
+...but the full template is also working - in the 3D sense: I can open it under
 Blender:
 
 ![Capture of first valid Obj file](img/obj.file.snapshot.2022-03-26-19h29.png)
@@ -153,15 +153,15 @@ they are:
 1. **`✓ 100%`**: see `2022-03-18` above:
    Make basic library to write a Wavefront `obj` file,
    [explained here](https://en.wikipedia.org/wiki/Wavefront_.obj_file);
-2. **`✓ 100%`**: Write one block, and display it on an
+2. **`✓ 100%`**: Write one template, and display it on an
    [online Obj file viewer](https://www.google.com/search?q=online+obj+viewer);
 3. **`✓ 100%`**: Giving a whole world, generate a full 3D `obj` file;
-4. **`✓ 100%`**: Put a block in the world;
-5. **`✗ ..0%`**: Put a block in the world, and try to put another block next to 
+4. **`✓ 100%`**: Put a template in the world;
+5. **`✗ ..0%`**: Put a template in the world, and try to put another template next to 
    it (only *valid* blockInfos);
 6. **`✗ ..0%`**: Algorithm that checks in the world if there are only "flat" 
    visible faces (= no sockets / holes visible);
-7. **`✓ 100%`**: Pre-compute all rotations of a block (for the world);
+7. **`✓ 100%`**: Pre-compute all rotations of a template (for the world);
 8. **`✗ ..0%`**: For all possible rotations, of **2** blockInfos, 
    try to put them next to each other, and check if there are only "flat" 
    visible faces. If so, generate the corresponding 3D obj file.

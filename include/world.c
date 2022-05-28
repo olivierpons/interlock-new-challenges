@@ -1,7 +1,7 @@
-//
-// Created by olivier on 30/03/2022.
-//
-
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 30/03/2022
+ */
 #include <assert.h>
 #include <stdio.h>
 #include "cube.h"
@@ -14,17 +14,18 @@ const ulong WORLD_SIZE_X = 10;
 const ulong WORLD_SIZE_Y = 10;
 const ulong WORLD_SIZE_Z = 10;
 
-void worldPutBlocksFromInfos(Cube* world, BlockInformation *pBI, int length)
-{
+void worldPutBlocksFromInfos(
+    Cube* world, BlockInformation *pBI, int start, int end, Block ***templates
+) {
 //    dbStart("worldPutBlocksFromInfos()\n");
-    for (int i = 0; i < length; ++i) {
+    for (int i = start; i <= end; ++i) {
 //        dbs("worldPutBlocksFromInfos(): loop %i: "
-//            "pBI[%i]=%p / %p / block = %p, rot = %d -> %p.\n",
-//            i, i, pBI, &(pBI[i]), pBI[i].block, pBI[i].rotationNo,
-//            pBI[i].block[ pBI[i].rotationNo ]
+//            "pBI[%i]=%p / %p / template = %p, rot = %d -> %p.\n",
+//            i, i, pBI, &(pBI[i]), templates[i], pBI[i].rotationNo,
+//            templates[i][ pBI[i].rotationNo ]
 //        );
         worldPutBlock(
-            world, pBI[i].block[ pBI[i].rotationNo ],
+            world, templates[i][ pBI[i].rotationNo ],
             pBI[i].p.x, pBI[i].p.y, pBI[i].p.z
         );
     }
@@ -51,7 +52,7 @@ void worldPutAllBlocks(Cube *world, Block ***blocks) {
     printfCube(blocks, 0, 0);
     // manual test:
     for (int i = 0; i < 12; ++i) {
-        // all rotations of each block:
+        // all rotations of each template:
         worldPutBlock(world, blocks[i][0],  2, (i+1)*3, 2);
         worldPutBlock(world, blocks[i][1],  4, (i+1)*3, 2);
         worldPutBlock(world, blocks[i][2],  7, (i+1)*3, 2);
@@ -81,52 +82,10 @@ bool cubeIsEmpty(Cube *world, ulong x, ulong y, ulong z)
 }
 
 void computePositionsToTry(
-    Cube* world, PosList *listDst, BlockInformation *blockInfos, int blocksInWorld
+    Cube* world, PosList *listDst, BlockInformation *bIs, int blocksInWorld,
+    Block ***templates
 )
 {
-    int listIdx = 0;
-    for (int i = 0; i < blocksInWorld; ++i) {
-        for (int j = 0; j < 2; ++j) {
-            Block *b = blockInfos[i].block[j];
-            // loop on parts of this block:
-            for (int k = 0; k < b->total; ++k) {
-
-            }
-
-        }
-    }
-    /*
-    ulong found = 0;
-    assert(list);
-
-    initPosList(list, 1);
-    for (ulong i = 0; i < WORLD_SIZE; ++i) {
-
-        if (CUBE_NOT_EMPTY(world[i])) {
-            ulong x = i % WORLD_SIZE_X;
-            // both y computations work:
-            // ulong y = (i / WORLD_SIZE_X) %  WORLD_SIZE_Y;
-            ulong y = (i % WORLD_SIZE_XY) / WORLD_SIZE_X;
-            ulong z = i / WORLD_SIZE_XY;
-            db("-------------------------------\n");
-            dbs("%4lu: %3lu / %3lu / %3lu\n", i, x, y, z);
-            appendPosListOnceIfCubeEmpty(world, list, x - 1, y, z);
-            appendPosListOnceIfCubeEmpty(world, list, x + 1, y, z);
-            appendPosListOnceIfCubeEmpty(world, list, x, y - 1, z);
-            appendPosListOnceIfCubeEmpty(world, list, x, y + 1, z);
-            appendPosListOnceIfCubeEmpty(world, list, x, y, z - 1);
-            appendPosListOnceIfCubeEmpty(world, list, x, y, z + 1);
-
-            // optimization: no need to continue if all cubes are tested:
-            if ((++found) == nbCubesInWorld) {
-                return list;
-            }
-        }
-    }
-    dbs("Fatal: didn't find all the cubes: expected %lu, found: %lu.\n",
-        nbCubesInWorld, found);
-    exit(-1);
-    */
 }
 
 bool worldCanPutBlock(

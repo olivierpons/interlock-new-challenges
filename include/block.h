@@ -1,6 +1,7 @@
-//
-// © Olivier Pons / HQF Development - 12/03/2022.
-//
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 12/03/2022
+ */
 
 #ifndef INTERLOCK_BLOCK_H
 #define INTERLOCK_BLOCK_H
@@ -20,7 +21,6 @@ typedef struct Block {
 } Block;
 
 typedef struct BlockInformation {
-    Block **block;
     uint8_t rotationNo;
     Pos p;
 } BlockInformation;
@@ -29,27 +29,37 @@ typedef struct BlockInformation {
 
 #define TO_INT(a,b,c,d) (int)(a), (int)(b), (int)(c), (int)(d)
 
-// 0 is *always* the reference:
-#define BN(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.n
-#define BE(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.e
-#define BS(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.s
-#define BW(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.w
-#define BF(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.f
-#define BB(piece, no_part) blocksTemplate[piece][0]->parts[no_part].c.b
+// BTRx = Block template
+#define BTRN(tpl, block, part_no, rot) ((tpl)[block][rot]->parts[part_no].c.n)
+#define BTRE(tpl, block, part_no, rot) ((tpl)[block][rot]->parts[part_no].c.e)
+#define BTRS(tpl, block, part_no, rot) ((tpl)[block][rot]->parts[part_no].c.s)
+#define BTRW(tpl, block, part_no, rot) ((tpl)[block][rot]->parts[part_no].c.w)
+#define BTRF(tpl, block, part_no, rot) ((tpl)[block][rot]->parts[part_no].c.f)
+#define BTRB(tpl, block, part_no, rot) ((tpl)[block][rot]->parts[part_no].c.b)
 
-#define B0N(piece) BN(piece, 0)
-#define B0E(piece) BE(piece, 0)
-#define B0S(piece) BS(piece, 0)
-#define B0W(piece) BW(piece, 0)
-#define B0F(piece) BF(piece, 0)
-#define B0B(piece) BB(piece, 0)
+#define BRN(block, part_no, rot) BTRN(blockTemplates, block, part_no, rot)
+#define BRE(block, part_no, rot) BTRE(blockTemplates, block, part_no, rot)
+#define BRS(block, part_no, rot) BTRS(blockTemplates, block, part_no, rot)
+#define BRW(block, part_no, rot) BTRW(blockTemplates, block, part_no, rot)
+#define BRF(block, part_no, rot) BTRF(blockTemplates, block, part_no, rot)
+#define BRB(block, part_no, rot) BTRB(blockTemplates, block, part_no, rot)
 
-#define B1N(piece) BN(piece, 1)
-#define B1E(piece) BE(piece, 1)
-#define B1S(piece) BS(piece, 1)
-#define B1W(piece) BW(piece, 1)
-#define B1F(piece) BF(piece, 1)
-#define B1B(piece) BB(piece, 1)
+// Rotation 0 is *always* the reference
+// BT = Block templates, 0 = part n.0, R = rot. 0: no rotation = the reference:
+#define B0N(block) BRN(block, 0, 0)
+#define B0E(block) BRE(block, 0, 0)
+#define B0S(block) BRS(block, 0, 0)
+#define B0W(block) BRW(block, 0, 0)
+#define B0F(block) BRF(block, 0, 0)
+#define B0B(block) BRB(block, 0, 0)
+
+// BT = Block templates, 1 = part n.1, R = rot. 0: no rotation = the reference:
+#define B1N(block) BRN(block, 1, 0)
+#define B1E(block) BRE(block, 1, 0)
+#define B1S(block) BRS(block, 1, 0)
+#define B1W(block) BRW(block, 1, 0)
+#define B1F(block) BRF(block, 1, 0)
+#define B1B(block) BRB(block, 1, 0)
 
 extern Block *blockCreate(int total);
 extern Block *blockCreateWithParts(int total, ... );

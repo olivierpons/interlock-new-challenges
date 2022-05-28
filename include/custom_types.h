@@ -1,6 +1,7 @@
-//
-// © Olivier Pons / HQF Development - 12/03/2022.
-//
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 12/03/2022
+ */
 
 #ifndef INTERLOCK_CUSTOM_TYPES_H
 #define INTERLOCK_CUSTOM_TYPES_H

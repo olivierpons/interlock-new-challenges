@@ -1,7 +1,7 @@
-//
-// Created by olivier on 03/04/2022.
-//
-
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 03/04/2022
+ */
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -13,7 +13,7 @@ Perms *allocPerms(int used, size_t size) {
     Perms *p;
     p = calloc(size, sizeof(Perms));
     p->elements = calloc(size, sizeof(int));
-    dbs("allocPerms(): p->elements = %p\n", p->elements)
+//    dbs("allocPerms(): p->elements = %p\n", p->elements)
     return resetPerms(p, used);
 }
 

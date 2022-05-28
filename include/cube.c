@@ -1,7 +1,7 @@
-//
-// © Olivier Pons / HQF Development - 12/03/2022.
-//
-
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 12/03/2022
+ */
 #include <stdio.h>
 #include <malloc.h>
 #include <memory.h>

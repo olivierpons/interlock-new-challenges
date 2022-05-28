@@ -15,26 +15,26 @@
 #define NB_BLOCKS 12
 #define NB_BLOCK_ROTATIONS 10
 
-Cube* world = NULL;
-Block ***blocksTemplate = NULL;
+Cube *world = NULL;
+Block ***blockTemplates = NULL;
 PosList positionsToTry;
 BlockInformation blockInfos[NB_BLOCKS];
 Perms *blockIndexes = NULL;
 
 // region - Functions that free everything -
 void freeBlocks() {
-    if (blocksTemplate) {
+    if (blockTemplates) {
         db("Freeing blocs...\n");
         for (int i = 0; i < NB_BLOCKS; ++i) {
             for (int j = 0; j < NB_BLOCK_ROTATIONS; ++j) {
-                if (blocksTemplate[i][j]) {
-                    free(blocksTemplate[i][j]);
+                if (blockTemplates[i][j]) {
+                    free(blockTemplates[i][j]);
                 }
             }
-            free(blocksTemplate[i]);
+            free(blockTemplates[i]);
         }
-        free(blocksTemplate);
-        blocksTemplate = NULL;
+        free(blockTemplates);
+        blockTemplates = NULL;
     }
 }
 void freeWorld() {
@@ -248,6 +248,69 @@ void blockCreateAllRotations(Block ***b, ulong i) {
 //    }
 //}
 
+void testBlockAroundPreviousBlocks (int toTest, int start, int end)
+{
+    /**
+     * Test block in the world around previous blocks
+     */
+    dbs(
+        "Base: (p.%d / r.%d): ",
+        blockIndexes->elements[start-1],
+        blockInfos[start-1].rotationNo
+    )
+    for (int i = start; i < end; ++i) {
+        /**
+         * Reminder:
+         *  list of template indexes = blockIndexes = template indexes
+         *  blockInfos[i] = rotation + pos (x=y=z)
+         *  ->
+         *  BlockInformation {
+         *      uint8_t rotationNo;
+         *      Pos p;
+         *  };
+         *
+         * Algorithm to do:
+         * - use world AND the infos on position+rotation of ALL previous blocks
+         *   to search for possible positioning of current block:
+         *
+         *   tries = getAllPossiblePositions(
+         *       world, blockIndexes, blockInfos, 0, i
+         *   );
+         *
+         *   int *getAllPossiblePositioning(
+         *       Cube *world,
+         *       Perms *blockIndexes,
+         *       BlockInformation *blockInfos,
+         *       int toTest, int start, int end
+         *   ) {
+         *      for (int i = start; i < end-1; ++i) {
+         *         block = information using blockIndexes[i] + blockInfos[i]
+         *         for each parts of the block:
+         *         for (int j = 0; j < block->total; ++j) {
+         *             Part *p = block->parts[j];
+         *
+         *             look in the world
+         *
+         *         check for all available positions around this block *using*
+         *
+         *      }
+         *   }
+         *
+         * - put the template in the world
+         */
+        dbs("(p.%d / r.%d)", blockIndexes->elements[i], blockInfos[i].rotationNo)
+        if ((i+1) < end) {
+            db(" - ");
+        }
+    }
+    dbs(
+        ", to test: (p.%d / r.%d) ",
+        blockIndexes->elements[toTest],
+        blockInfos[toTest].rotationNo
+    )
+    dbs("\n")
+}
+
 int main() {
     // make sure functions to free all memory are ALWAYS called:
     if (signal(SIGINT, sig_handler) == SIG_ERR) {
@@ -270,91 +333,91 @@ int main() {
     start = clock();
 
     // all allocations before loops:
-    blocksTemplate = calloc(NB_BLOCKS, sizeof(Block **));
-    if (!blocksTemplate) {
+    blockTemplates = calloc(NB_BLOCKS, sizeof(Block **));
+    if (!blockTemplates) {
         exit(-1);
     }
     for (uint i = 0; i < NB_BLOCKS; ++i) {
-        blocksTemplate[i] = calloc(NB_BLOCK_ROTATIONS, sizeof(Block *));
-        if (!blocksTemplate[i]) {
+        blockTemplates[i] = calloc(NB_BLOCK_ROTATIONS, sizeof(Block *));
+        if (!blockTemplates[i]) {
             exit(-1);
         }
     }
     initPosList(&positionsToTry, 50);
 
     // region - Blocks creation -
-    blocksTemplate[0][0] = blockCreateWithParts(2,
+    blockTemplates[0][0] = blockCreateWithParts(2,
         // n, e, s, w, f, b, isMain, offsetX, offsetY, offsetZ,
         F_HOLE, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[1][0] = blockCreateWithParts(2,
+    blockTemplates[1][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_HOLE, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[2][0] = blockCreateWithParts(2,
+    blockTemplates[2][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_HOLE, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[3][0] = blockCreateWithParts(2,
+    blockTemplates[3][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_WALL, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_HOLE, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[4][0] = blockCreateWithParts(2,
+    blockTemplates[4][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_HOLE, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[5][0] = blockCreateWithParts(2,
+    blockTemplates[5][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_HOLE, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[6][0] = blockCreateWithParts(2,
+    blockTemplates[6][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_HOLE, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[7][0] = blockCreateWithParts(2,
+    blockTemplates[7][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_HOLE, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[8][0] = blockCreateWithParts(2,
+    blockTemplates[8][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_PLUG, F_WALL, F_LINK, F_WALL, F_WALL, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_HOLE, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[9][0] = blockCreateWithParts(2,
+    blockTemplates[9][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_HOLE, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[10][0] = blockCreateWithParts(2,
+    blockTemplates[10][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_WALL, F_WALL, F_HOLE, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
-    blocksTemplate[11][0] = blockCreateWithParts(2,
+    blockTemplates[11][0] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         F_WALL, F_WALL, F_LINK, F_WALL, F_PLUG, F_WALL, TO_INT(true, 0, 0, 0),
         F_LINK, F_HOLE, F_WALL, F_WALL, F_WALL, F_WALL, TO_INT(false, 0, -1, 0)
     );
     for (ulong i = 0; i < 12; ++i) {
-        blockCreateAllRotations(blocksTemplate, i);
+        blockCreateAllRotations(blockTemplates, i);
     }
     // endregion
 
     /**
-     * blockInfos = Block *** = list of arrays of "blockInfos rotated"
-     *                        = allocation: total blockInfos
-     * blockInfos[x] = (Block **) = elements of "blockInfos rotated"
-     *                            = allocation: total of possible rotations
-     * blockInfos[x][y] = (Block *) = elements of blockInfos
-     * blockInfos[x][y][z] = Block = block rotated (or not) = elements of pieces
+     * blockTemplates = Block *** = list of arrays of "blockTemplates rotated"
+     *                            = allocation: total blockTemplates
+     * blockTemplates[x] = (Block **) = elements of "blockTemplates rotated"
+     *                                = allocation: total of possible rotations
+     * blockTemplates[x][y] = (Block *) = elements of blockTemplates
+     * blockTemplates[x][y][z] = Block = template rotated = elements of pieces
      *
      *      "list "
      *      |
@@ -381,8 +444,8 @@ int main() {
     world = malloc(worldSize * sizeof(Cube));
 
     // always start with 2 blocks, maybe with only 2 there's a solution anyway:
-    blockIndexes = allocPerms(6, NB_BLOCKS);
-    for (uint8_t blocksPicked = 6; blocksPicked < NB_BLOCKS; ++blocksPicked) {
+    blockIndexes = allocPerms(3, NB_BLOCKS);
+    for (uint8_t blocksPicked = 3; blocksPicked < NB_BLOCKS; ++blocksPicked) {
 
         /**
          * combinations vs permutations!
@@ -416,7 +479,7 @@ int main() {
          *                      for each (blockInfos found)
          *                          ok = true;
          *                          for (j = i+1 .. nb blockInfos-1)
-         *                             if put a block = ok
+         *                             if put a template = ok
          *                                computePositionsToTry(..)
          *                             else
          *                                 ok = false;
@@ -426,18 +489,10 @@ int main() {
          *                                  found a solution -> save world!
          */
         dbs("BlocksPicked: %2d: \n", blocksPicked)
-        // blockIndexes = for "picking" blocksTemplate:
+        // blockIndexes = for "picking" blockTemplates:
         blockIndexes = resetPerms(blockIndexes, blocksPicked);
         // Init all blocks we're going to work with:
         for (int i = 0; i < blocksPicked; ++i) {
-            /**
-             * blocksTemplate       = ***Block = list of "**"
-             * blocksTemplate[x]    = **Block  = list of "*"
-             * blocksTemplate[x][y] = *Block   = list of Block
-             *                                   !! -> here, 1 block allocated:
-             *                                 Block = { total + list of Parts }
-             */
-            blockInfos[i].block = blocksTemplate[blockIndexes->elements[i]];
             blockInfos[i].rotationNo = 0;
         }
         do {
@@ -451,40 +506,20 @@ int main() {
                 /**
                  * Here we have:
                  *  blockInfos[i] = template x + rotation y + pos (x=y=z=0)
-                 * Put first block in center of the world:
+                 * Put first template in center of the world:
                  */
                 blockInfos[0].p.x = worldCenterX;
                 blockInfos[0].p.y = worldCenterY;
                 blockInfos[0].p.z = worldCenterZ;
-                for (int i = 0; i < blocksPicked; ++i) {
-                    dbs("blockInfos[%d]: rot. %d ",
-                        blockIndexes->elements[i],
-                        blockInfos[i].rotationNo
-                    )
-                    if ((i+1) < blocksPicked) {
-                        db(" - ");
-                    }
-                }
-                dbs("\n")
-//                worldPutBlocksFromInfos(world, blockInfos, blocksPicked);
-                worldPutBlocksFromInfos(world, blockInfos, 1);
-//                positionsToTry = computePositionsToTry(world, blocksPicked*2);
-//                positionsToTry = computePositionsToTry(world, 1*blocksPicked);
-/*
-                for (ulong i = 0; i < positionsToTry->used; ++i) {
-                    dbs("To try: (%hu, %hu, %hu)\n",
-                        positionsToTry->array[i].x,
-                        positionsToTry->array[i].y,
-                        positionsToTry->array[i].z
-                    )
-                }
-                // worldPutAllBlocks(world, blocksTemplate);
-                for (int currBlock = 0; currBlock < blocksPicked; ++currBlock) {
-                    worldPutBlock(
-                        world, blocksTemplate[currBlock][0], 2 + (currBlock * 3), 3, 2
-                    );
-                }
-                */
+
+                /* put blockInfos[0] in the world */
+                worldPutBlocksFromInfos(
+                    world, blockInfos, 0, 0, blockTemplates
+                );
+
+                testBlockAroundPreviousBlocks(
+                    blocksPicked - 1, 1, blocksPicked - 1
+                );
 
                 count++;
 

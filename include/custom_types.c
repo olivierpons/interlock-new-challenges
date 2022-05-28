@@ -1,6 +1,7 @@
-//
-// © Olivier Pons / HQF Development - 27/03/2022.
-//
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 27/03/2022
+ */
 #include "custom_types.h"
 
 char os_char_separator =

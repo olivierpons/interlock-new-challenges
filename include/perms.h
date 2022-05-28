@@ -1,6 +1,7 @@
-//
-// Created by olivier on 03/04/2022.
-//
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 03/04/2022
+ */
 
 #ifndef INTERLOCK_PERMS_H
 #define INTERLOCK_PERMS_H

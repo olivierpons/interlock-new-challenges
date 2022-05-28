@@ -1,7 +1,7 @@
-//
-// Created by olivier on 02/04/2022.
-//
-
+/**
+ * Author: Olivier Pons / HQF Development
+ * Creation: 02/04/2022
+ */
 #ifndef INTERLOCK_POS_H
 #define INTERLOCK_POS_H
 
