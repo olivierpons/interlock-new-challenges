@@ -4,6 +4,7 @@
  */
 #include "pos.h"
 #include "debug.h"
+#include "custom_types.h"
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>

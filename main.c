@@ -79,55 +79,56 @@ void sig_handler(int signo) {
 
 void blockCreateAllRotations(Block ***b, ulong i) {
     // roll: 1/3
-    b[i][1] = blockCreateWithParts(2,
+    unsigned char idx=1;
+    b[i][idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0E(i), B0S(i), B0W(i), B0N(i), B0F(i), B0B(i), TO_INT(true, 0, 0, 0),
         B1E(i), B1S(i), B1W(i), B1N(i), B1F(i), B1B(i), TO_INT(false, 1, 0, 0)
     );
     // roll: 2/3
-    b[i][2] = blockCreateWithParts(2,
+    b[i][++idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0S(i), B0W(i), B0N(i), B0E(i), B0F(i), B0B(i), TO_INT(true, 0, 0, 0),
         B1S(i), B1W(i), B1N(i), B1E(i), B1F(i), B1B(i), TO_INT(false, 0, 1, 0)
     );
     // roll: 3/3
-    b[i][3] = blockCreateWithParts(2,
+    b[i][++idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0W(i), B0N(i), B0E(i), B0S(i), B0F(i), B0B(i), TO_INT(true, 0, 0, 0),
         B1W(i), B1N(i), B1E(i), B1S(i), B1F(i), B1B(i), TO_INT(false, -1, 0, 0)
     );
     // pitch: 1/3
-    b[i][4] = blockCreateWithParts(2,
+    b[i][++idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0F(i), B0E(i), B0B(i), B0W(i), B0S(i), B0N(i), TO_INT(true, 0, 0, 0),
         B1F(i), B1E(i), B1B(i), B1W(i), B1S(i), B1N(i), TO_INT(false, 0, 0, 1)
     );
     // pitch: 2/3
-    b[i][5] = blockCreateWithParts(2,
+    b[i][++idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0S(i), B0E(i), B0N(i), B0W(i), B0B(i), B0F(i), TO_INT(true, 0, 0, 0),
         B1S(i), B1E(i), B1N(i), B1W(i), B1B(i), B1F(i), TO_INT(false, 0, 1, 0)
     );
     // pitch: 3/3
-    b[i][6] = blockCreateWithParts(2,
+    b[i][++idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0B(0), B0E(0), B0F(0), B0W(0), B0N(0), B0S(0), TO_INT(true, 0, 0, 0),
         B1B(0), B1E(0), B1F(0), B1W(0), B1N(0), B1S(0), TO_INT(false, 0, 0, -1)
     );
     // yaw: 1/3
-    b[i][7] = blockCreateWithParts(2,
+    b[i][++idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0N(i), B0B(i), B0S(i), B0F(i), B0E(i), B0W(i), TO_INT(true, 0, 0, 0),
         B1N(i), B1B(i), B1S(i), B1F(i), B1E(i), B1W(i), TO_INT(false, 0, -1, 0)
     );
     // yaw: 2/3
-    b[i][8] = blockCreateWithParts(2,
+    b[i][++idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0N(i), B0W(i), B0S(i), B0E(i), B0B(i), B0F(i), TO_INT(true, 0, 0, 0),
         B1N(i), B1W(i), B1S(i), B1E(i), B1B(i), B1F(i), TO_INT(false, 0, -1, 0)
     );
     // yaw: 3/3
-    b[i][9] = blockCreateWithParts(2,
+    b[i][++idx] = blockCreateWithParts(2,
         // n,    e,      s,      w,      f,      b,     isMain, offX, offY, offZ
         B0N(i), B0F(i), B0S(i), B0B(i), B0W(i), B0E(i), TO_INT(true, 0, 0, 0),
         B1N(i), B1F(i), B1S(i), B1B(i), B1W(i), B1E(i), TO_INT(false, 0, -1, 0)
@@ -444,8 +445,8 @@ int main() {
     world = malloc(worldSize * sizeof(Cube));
 
     // always start with 2 blocks, maybe with only 2 there's a solution anyway:
-    blockIndexes = allocPerms(3, NB_BLOCKS);
-    for (uint8_t blocksPicked = 3; blocksPicked < NB_BLOCKS; ++blocksPicked) {
+    blockIndexes = allocPerms(1, NB_BLOCKS);
+    for (uint8_t blocksPicked = 1; blocksPicked < NB_BLOCKS; ++blocksPicked) {
 
         /**
          * combinations vs permutations!
@@ -496,6 +497,7 @@ int main() {
             blockInfos[i].rotationNo = 0;
         }
         do {
+            printPerms(blockIndexes);
             printPerms(blockIndexes);
             // loop on all possible rotations for all blockInfos[]:
             int pos;

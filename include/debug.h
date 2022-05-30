@@ -8,6 +8,8 @@
 
 #ifdef __linux__
 #include <linux/limits.h>
+#else
+#include <limits.h>
 #endif
 
 #define dbs(...) { char str[PATH_MAX]; sprintf(str, __VA_ARGS__); db(str); }
