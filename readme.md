@@ -1,5 +1,23 @@
 # Interlock: new challenges
 
+# Table of Contents
+- [Interlock: new challenges](#interlock-new-challenges)
+    - [Description](#description)
+    - [Why do a program to generate all challenges for this brain-teaser?](#why-do-a-program-to-generate-all-challenges-for-this-brain-teaser)
+    - [How to do it? Which language, and why?](#how-to-do-it-which-language-and-why)
+    - [Diary](#diary)
+        - [2022-03-12 - Basic C Working Skeleton](#2022-03-12---basic-c-working-skeleton)
+        - [2022-03-13 - Updated Readme and Code Cleanup](#2022-03-13---updated-readme-and-code-cleanup)
+        - [2022-03-18 - First Valid 3D Obj File](#2022-03-18---first-valid-3d-obj-file)
+        - [2022-03-20 - 3D Generation Improvements](#2022-03-20---3d-generation-improvements)
+        - [2022-03-26 - Completed Step 2](#2022-03-26---completed-step-2)
+        - [2022-03-29 - Pre-Compute All Rotations](#2022-03-29---pre-compute-all-rotations)
+        - [2022-03-30 - Reached Goals for 3D Obj File Generation](#2022-03-30---reached-goals-for-3d-obj-file-generation)
+        - [2022-05-28 - Code Cleanup and Progress on Step 9](#2022-05-28---code-cleanup-and-progress-on-step-9)
+    - [Next steps](#next-steps)
+    - [Steps done](#steps-done)
+
+
 ## Description
 C program to generate new challenges for:
 "Interlock, the hide the plug and socket puzzle!"
@@ -71,7 +89,7 @@ you have to find a workaround...
 
 ## Diary
 
-### 2022-03-12
+### 2022-03-12 - Basic C Working Skeleton
 I worked this whole saturday afternoon to have a basic C working skeleton:
 - a list of "blockInfos"
 - a "template is made of "parts"
@@ -82,8 +100,8 @@ This might sound complex for a game with blockInfos that have only 2 cubes,
 but organizing things like this, I will be able to have more than 2 cubes for 
 one template.
 
-### 2022-03-13
-I updated this [`readme.md`](./readme.md) to explain why I'm doing this (*and 
+### 2022-03-13 - Updated Readme and Code Cleanup
+I updated this [`readme.md`](readme.md) to explain why I'm doing this (*and 
 motivate myself!*). If you are interested, I will gladly answer (to guess 
 my mail, it's simple: take 
 [my name from here](https://github.com/olivierpons/) and add "at gmail.com").
@@ -102,7 +120,7 @@ All heap blockInfos were freed -- no leaks are possible
 ```
 Yay!
 
-### 2022-03-18
+### 2022-03-18 - First Valid 3D Obj File
 First "good" valid 3D obj file.
 I still have problems with the color vector: I should 
 create/re-use if existing one for each template I generate,
@@ -120,7 +138,7 @@ Thanks to https://3dviewer.net/, I can validate my obj file:
    />
 </p>
 
-### 2022-03-20
+### 2022-03-20 - 3D Generation Improvements
 Worked a *lot* on 3D generation. To make a long story short: now I
 generate dynamically a face of an object with a plug, and I rotate it
 if I need it for another face.
@@ -139,7 +157,7 @@ Now I have to join the points of a circle with the points of a square
 (to be able to have a "hole" = a "socket" in the face).
 So I've done 50% of the point `2` (see below).
 
-### 2022-03-26
+### 2022-03-26 - Completed Step 2
 01h35: I've finally done it! I've managed to connect a sphere to a square!
 This wasn't easy, believe me!
 Now I can have blockInfos with plugs & sockets!
@@ -176,11 +194,12 @@ Blender:
    />
 </p>
 
-### 2022-03-29
-I forgot one step (that I've done tonight): pre-compute all possible rotations,
-using the "roll / pitch / yaw" principle.
+### 2022-03-29 - Pre-Compute All Rotations
+I forgot one step (that I've done tonight): pre-compute all possible rotations.
+For those unfamiliar with the roll, pitch, and yaw principle, 
+[read more about it on Wikipedia](https://en.wikipedia.org/wiki/Aircraft_principal_axes).
 
-### 2022-03-30
+### 2022-03-30 - Reached Goals for 3D Obj File Generation
 I reached those goals:
 - pre-compute all possible rotations,
   using the "roll / pitch / yaw" principle
@@ -198,9 +217,10 @@ they are:
    />
 </p>
 
-### 2022-05-28
+### 2022-05-28 - Code Cleanup and Progress on Step 9
 Two months later, I've decided to try to go further.
-I've done 50% of step 9, with big cleanup. Even though there are a few
+- Cleanup of this [`readme.md`](readme.md) file;
+- I've done 50% of step 9, with big cleanup. Even though there are a few
 changes in the code, it's a big work - memory leaks problem, thanks
 [valgrind](https://valgrind.org/). I don't know how Windows users
 can program without such powerful tools - maybe they are just slower
@@ -218,8 +238,6 @@ the OS ***only***.
     see #1 results for this:
     [Importing 3D scenes - Godot Docs](https://www.google.com/search?q=site%3Adocs.godotengine.org+%22importing+3d+scenes%22)
     Not sure if I'll ever do this!
-
-<hr>
 
 ### Steps done
 1. **`✓ 100%`**: see `2022-03-18` above:

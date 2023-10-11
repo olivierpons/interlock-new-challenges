@@ -263,7 +263,7 @@ void testBlockAroundPreviousBlocks (int toTest, int start, int end)
         /**
          * Reminder:
          *  list of template indexes = blockIndexes = template indexes
-         *  blockInfos[i] = rotation + pos (x=y=z)
+         *  blockInfos[i] = rotation + pos (x, y, z)
          *  ->
          *  BlockInformation {
          *      uint8_t rotationNo;
@@ -278,14 +278,14 @@ void testBlockAroundPreviousBlocks (int toTest, int start, int end)
          *       world, blockIndexes, blockInfos, 0, i
          *   );
          *
-         *   int *getAllPossiblePositioning(
+         *   int *getAllPossibleTestsAround(
          *       Cube *world,
          *       Perms *blockIndexes,
          *       BlockInformation *blockInfos,
          *       int toTest, int start, int end
          *   ) {
          *      for (int i = start; i < end-1; ++i) {
-         *         block = information using blockIndexes[i] + blockInfos[i]
+         *         block = information using blockInfos[ blockIndexes[i] ]
          *         for each parts of the block:
          *         for (int j = 0; j < block->total; ++j) {
          *             Part *p = block->parts[j];
